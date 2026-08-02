@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>It's Your Birthday! 🎉🎊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Henny+Penny&family=Emilys+Candy&family=Crafty+Girls&family=Snowburst+One&family=Atma&family=Englebert&family=Jim+Nightshade&family=Sniglet&family=Ruge+Boogie&family=Butterfly+Kids&family=Mystery+Quest&family=Damion&family=Mountains+of+Christmas&family=Fontdiner+Swanky&family=Rock+Salt&family=Comforter+Brush&family=Liu+Jian+Mao+Cao&family=Indie+Flower&family=Sunshiney&family=Sue+Ellen+Francisco&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============ PASSWORD LOCK SCREEN ============ -->
+  <div id="lockScreen">
+    <div id="lockBox">
+      <h1>Enter the password<br>for your surprise</h1>
+      <input id="pwInput" type="password" placeholder="password" autocomplete="off">
+      <button id="unlockBtn">Unlock 🎁</button>
+      <div id="lockError"></div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN SITE ============ -->
+  <div id="site">
+    <button id="musicBtn" title="Play music">🎵</button>
+    <button id="editModeBtn" title="Toggle position-editing mode">🖐️</button>
+    <audio id="bgMusic" loop preload="none"></audio>
+
+    <h1 id="hbTitle">Happy Birthday!</h1>
+
+    <div id="charLayer"></div>
+
+    <div id="grass"></div>
+    <img id="animalBubble" src="images/thought-bubble.png" alt="Happy Birthday, Liam!">
+
+    <div id="layoutPanel">
+      <div id="layoutPanelHeader">
+        <span>Layout editor</span>
+        <button id="layoutMinBtn" title="Minimize">➖</button>
+      </div>
+      <div id="layoutPanelBody">
+        <div id="layoutHint">Drag a character to move · scroll over one to resize · click one to bring to front</div>
+        <pre id="layoutOutput"></pre>
+        <button id="copyLayoutBtn">Copy layout code</button>
+      </div>
+    </div>
+
+    <footer>made by your eyesonMe 💕</footer>
+
+    <div id="balloonOverlay">
+      <div id="balloonFloatWrap">
+        <div id="balloonModal">
+          <span class="closeX" id="balloonClose">✕</span>
+          <div class="msg" id="balloonMsg"></div>
+        </div>
+        <div class="knot" id="balloonKnot"></div>
+        <div class="string" id="balloonString"></div>
+      </div>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
