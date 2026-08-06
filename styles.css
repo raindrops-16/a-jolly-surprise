@@ -210,13 +210,21 @@ html,body{
   transition:transform .32s cubic-bezier(.34,1.56,.64,1);
 }
 #balloonOverlay.show #balloonFloatWrap{transform:scale(1);}
+
+/* ============ BALLOON — now a true circle so every character's
+   balloon is the same round shape. aspect-ratio:1 + border-radius:50%
+   guarantees a perfect circle at any width. overflow:hidden + the
+   generous padding keep the message text inside the circle instead of
+   bleeding into the rounded corners; fitBalloonText() in script.js
+   shrinks the font until it fits the remaining rectangle. ============ */
 #balloonModal{
   width:min(78vw,72vh,440px);
-  aspect-ratio:0.86;
-  border-radius:50% 50% 50% 50% / 58% 58% 42% 42%;
+  aspect-ratio:1;
+  border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;
-  padding:12% 15% 16%;
+  padding:17%;
+  overflow:hidden;
   font-weight:700;
   box-shadow:inset -12px -16px 34px rgba(0,0,0,.18), inset 8px 10px 20px rgba(255,255,255,.22), 0 18px 40px rgba(0,0,0,.5);
   position:relative;
@@ -225,6 +233,7 @@ html,body{
 #balloonModal .msg{
   font-family:'Segoe UI','Trebuchet MS',Arial,sans-serif;
   font-weight:700;line-height:1.3;overflow:hidden;
+  max-width:100%;max-height:100%;
 }
 .nameLine{ font-weight:800; }
 .inlineIcon{ width:1.15em;height:1.15em;vertical-align:-0.2em;object-fit:contain; }
@@ -233,7 +242,7 @@ html,body{
   font-family:'Segoe UI','Trebuchet MS',Arial,sans-serif;
 }
 #balloonModal::after{
-  content:"";position:absolute;top:13%;left:20%;width:22%;height:14%;
+  content:"";position:absolute;top:14%;left:22%;width:20%;height:12%;
   background:#ffffff55;border-radius:50%;transform:rotate(-20deg);pointer-events:none;
 }
 #balloonKnot{
@@ -263,6 +272,10 @@ html,body{
 }
 .animal{
   position:absolute;bottom:8%;cursor:pointer;z-index:10;
+  /* manipulation = no browser tap-delay / scroll-gesture interference,
+     which was causing taps on a mid-walk (moving) animal to sometimes
+     get dropped before the pose could trigger */
+  touch-action:manipulation;
 }
 .animalBody{
   aspect-ratio:1/1;
@@ -321,7 +334,7 @@ footer{
     font-size:clamp(1.9rem,min(9.5vw,9vh),3.4rem);
     white-space:normal;width:64%;
   }
-  #balloonModal{ width:min(70vw, 62vh, 300px); }
+  #balloonModal{ width:min(78vw, 68vh, 320px); padding:18%; }
   #lockBox{ width:min(84vw,320px); padding:1.7rem 1.4rem; }
   #lockBox::before{ font-size:2.7rem; }
   #lockBox h1{ font-size:1.5rem; }

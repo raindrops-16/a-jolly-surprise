@@ -1,20 +1,10 @@
-/* ======================================================================
-   EVERYTHING YOU'RE LIKELY TO EDIT LIVES IN THIS FILE.
-
-   1. SITE_PASSWORD
-   2. MUSIC_FILE
-   3. CHARACTERS
-   4. LAYOUT_DESKTOP / LAYOUT_MOBILE
-   5. ANIMALS
-====================================================================== */
-
 const SITE_PASSWORD = "changeme";
 const MUSIC_FILE = "birthday-ost.mp3";
 
 const CHARACTERS = [
   { key:"tsukune", name:"Tsukune", img:"tsukune.png", color:"#424194", icon:"🧛‍♂️",
     iconFile:"vampire-icon.png", font:"'Sue Ellen Francisco', cursive",
-    balloonFontSize:2.4, balloonMinFontSize:1.8,
+    balloonFontSize:2.4, balloonMinFontSize:1.9,
     balloonFontSizeMobile:1.6, balloonMinFontSizeMobile:0.9,
     msg:"Happy Birthday! I hope you have an awesome day and that all your wishes come true. Thanks for everything, and here's to another great year. Enjoy your special day! 👊" },
 
@@ -23,7 +13,9 @@ const CHARACTERS = [
     msg:"Ta-da! Happy Birthday! 🎂 I've cast my special birthday spell just for you! May your year be full of happiness, good luck, and amazing adventures! Don't forget to save me a slice of cake, okay? Hehe! 💖🪄" },
 
   { key:"moka-inner", name:"Inner Moka", img:"Moka-inner.png", color:"#f389a9", icon:"🦷",
-    iconFile:"moka-inner-icon.png", font:"'Comforter Brush', cursive", balloonFontSize:1.55,
+    iconFile:"moka-inner-icon.png", font:"'Comforter Brush', cursive",
+    balloonFontSize:1.55, balloonMinFontSize:0.85,
+    balloonFontSizeMobile:1.15, balloonMinFontSizeMobile:0.65,
     msg:"I don't usually say things like this... but I'm glad you're here today. Don't waste today worrying about the past. Celebrate, smile, and become even stronger. I hope this year brings you happiness worth remembering. I'll be expecting great things from you next year, too. Happy Birthday! <img class=\"inlineIcon\" src=\"images/icons/fangs-icon.png\" alt=\"🦷\" onerror=\"this.replaceWith(document.createTextNode('🦷'));\">" },
 
   { key:"kurumu", name:"Kurumu", img:"kurumu.png", color:"#df0747", icon:"🪽",
@@ -35,7 +27,9 @@ const CHARACTERS = [
     msg:"Happy Birthday to you! We hope your day is filled with love, laughter, yummy food, and the people who make you smile. Wishing you a year full of happiness and exciting adventures. Have a Jolly Happy Birthday! 🎉🎂🎈" },
 
   { key:"hellokitty", name:"Hello Kitty & Friends", img:"kitty.png", color:"#2a9d8f", icon:"🎀",
-    font:"'Englebert', cursive", balloonFontSize:1.56,
+    font:"'Englebert', cursive",
+    balloonFontSize:1.56, balloonMinFontSize:0.85,
+    balloonFontSizeMobile:1.1, balloonMinFontSizeMobile:0.65,
     msg:"Happy Birthday! We hope your special day is filled with love, laughter, friendship, and magical memories! Have the most wonderful birthday ever! We love you! 🎂🎈🎁💕" },
 
   { key:"mizore", name:"Mizore", img:"Mizore.png", color:"#6a4c93", icon:"❄️",
@@ -43,11 +37,15 @@ const CHARACTERS = [
     msg:"Happy birthday. I... made this just for you. I hope it makes you smile. May this year bring you lots of happiness... and I'll be wishing for your dreams to come true too. 💙❄️" },
 
   { key:"moka-outer", name:"Outer Moka", img:"moka-outer.png", color:"#00b7c2", icon:"🌸",
-    iconFile:"moka-outer-icon.png", font:"'Liu Jian Mao Cao', cursive", balloonFontSize:1.27,
+    iconFile:"moka-outer-icon.png", font:"'Liu Jian Mao Cao', cursive",
+    balloonFontSize:1.27, balloonMinFontSize:0.8,
+    balloonFontSizeMobile:1.0, balloonMinFontSizeMobile:0.62,
     msg:"Happy Birthday! Yay! I'm so happy I get to celebrate this special day with you. May your heart always be filled with love, your dreams come true, and every day bring you something to smile about! Eat lots of delicious cake, have tons of fun, and remember that I'll always be cheering you on. Have an amazing birthday! 🌹💕😘" },
 
   { key:"bubu-dudu", name:"Bubu & Dudu", img:"bubu.png", color:"#ffffff", textColor:"#12204a", icon:"🧸",
-    iconFile:"bear-icon.png", font:"'Sunshiney', cursive", balloonFontSize:1.44,
+    iconFile:"bear-icon.png", font:"'Sunshiney', cursive",
+    balloonFontSize:1.44, balloonMinFontSize:0.8,
+    balloonFontSizeMobile:1.05, balloonMinFontSizeMobile:0.62,
     msg:"Happy Birthday, our favorite human! Today is all about you! Eat lots of cake, make wonderful memories, laugh from your heart, and never forget how loved you are. We're giving you the biggest Bubu & Dudu bear hug ever! Have the happiest birthday! 🎂🎈🎁💕" },
 
   { key:"captain-ri-seri", name:"Captain Ri & Se-ri", img:"cloy.png", color:"#42d814", icon:"🪂",
@@ -75,12 +73,13 @@ const LAYOUT_DESKTOP = {
   "jollibee": { x: 9.9, y: 22.9, width: 311, z: 47 },
 };
 
+/* ---- mobile (≤480px) positions — updated from the latest edit-mode pass ---- */
 const LAYOUT_MOBILE = {
-  "yukari": { x: 18.6, y: 18.0, width: 251, z: 28 },
-  "kurumu": { x: 80.5, y: 17.1, width: 248, z: 26 },
-  "mizore": { x: 62.9, y: 24.2, width: 217, z: 21 },
-  "tsukune": { x: 39.6, y: 23.9, width: 214, z: 29 },
-  "moka-inner": { x: 21.4, y: 49.9, width: 330, z: 21 },
+  "yukari": { x: 18.3, y: 19.7, width: 309, z: 22 },
+  "kurumu": { x: 83.9, y: 18.6, width: 278, z: 23 },
+  "mizore": { x: 62.9, y: 28.2, width: 257, z: 24 },
+  "tsukune": { x: 40.0, y: 26.7, width: 240, z: 25 },
+  "moka-inner": { x: 17.9, y: 50.8, width: 363, z: 26 },
   "moka-outer": { x: 81.7, y: 50.2, width: 220, z: 23 },
   "winnie-pooh": { x: 81.8, y: 82.5, width: 235, z: 46 },
   "bubu-dudu": { x: 69.9, y: 69.5, width: 284, z: 50 },
@@ -167,13 +166,14 @@ function refreshLayoutOutput(){
   const varName = IS_MOBILE_LAYOUT ? "LAYOUT_MOBILE" : "LAYOUT_DESKTOP";
   const lines = Object.keys(LAYOUT).map(key=>{
     const p = LAYOUT[key];
-    return `${varName}["${key}"] = { x: ${p.x.toFixed(1)}, y: ${p.y.toFixed(1)}, width: ${Math.round(p.width)}, z: ${p.z} };`;
+    return `  "${key}": { x: ${p.x.toFixed(1)}, y: ${p.y.toFixed(1)}, width: ${Math.round(p.width)}, z: ${p.z} },`;
   });
   document.getElementById("layoutOutput").textContent =
-`// Paste this UNDER the existing "const ${varName} = {...}" block in
-// script.js — do NOT replace that block or delete it, just add these
-// lines right after it. (Currently editing: screen is ${IS_MOBILE_LAYOUT ? "≤" : ">"} ${MOBILE_BREAKPOINT}px wide.)
-${lines.join("\n")}`;
+`// Replace the body of the existing "const ${varName} = {...}" object
+// in script.js with these lines. (Currently editing: screen is ${IS_MOBILE_LAYOUT ? "≤" : ">"} ${MOBILE_BREAKPOINT}px wide.)
+const ${varName} = {
+${lines.join("\n")}
+};`;
 }
 
 function applyPosition(card, pos){
@@ -279,13 +279,13 @@ function fitBalloonText(el, preferredSize = 1.35, minSize = 0.72){
   const lowerBound = Math.max(minSize, 0.5);
   el.style.fontSize = maxSize + "rem";
   el.style.lineHeight = maxSize >= 1.1 ? "1.2" : "1.28";
-  if(el.scrollHeight <= el.clientHeight + 2) return;
+  if(el.scrollHeight <= el.clientHeight + 2 && el.scrollWidth <= el.clientWidth + 2) return;
 
   let lo = lowerBound, hi = maxSize, best = lowerBound;
-  for(let i = 0; i < 12; i++){
+  for(let i = 0; i < 14; i++){
     const mid = (lo + hi) / 2;
     el.style.fontSize = mid + "rem";
-    if(el.scrollHeight <= el.clientHeight + 2){ best = mid; lo = mid; }
+    if(el.scrollHeight <= el.clientHeight + 2 && el.scrollWidth <= el.clientWidth + 2){ best = mid; lo = mid; }
     else hi = mid;
   }
   el.style.fontSize = best + "rem";
@@ -316,7 +316,8 @@ function openBalloon(c){
   balloonOverlay().classList.add("show");
   const maxSz = (IS_MOBILE_LAYOUT && c.balloonFontSizeMobile) || c.balloonFontSize || 1.35;
   const minSz = (IS_MOBILE_LAYOUT && c.balloonMinFontSizeMobile) || c.balloonMinFontSize || 0.72;
-  fitBalloonText(msgEl, maxSz, minSz);
+  // run after layout so clientWidth/clientHeight reflect the circular modal's real box
+  requestAnimationFrame(()=> fitBalloonText(msgEl, maxSz, minSz));
 }
 
 function closeBalloon(){
@@ -433,6 +434,45 @@ function animateWalk(el, body, a){
   step();
 }
 
+/* Clamp the shared speech bubble so it never renders partly off-screen
+   for animals walking near the left/right/top edges (which could make
+   a successful pose look like "nothing happened"). */
+function positionAnimalBubble(bubble, rect){
+  const margin = 12;
+  const bw = bubble.offsetWidth || 220;
+  const bh = bubble.offsetHeight || 140;
+  let left = rect.left + rect.width / 2;
+  let top = rect.top - 8;
+  left = Math.min(window.innerWidth - margin - bw / 2, Math.max(margin + bw / 2, left));
+  top = Math.max(margin + bh, top);
+  bubble.style.left = left + "px";
+  bubble.style.top = top + "px";
+}
+
+function triggerPose(el, body, a, sharedBubble){
+  if(body.classList.contains("posing")) return;
+
+  // freeze the animal's current on-screen position and cancel any
+  // in-flight "left" transition before switching to the pose sprite
+  const frozenLeft = getComputedStyle(el).left;
+  el.style.transition = "none";
+  el.style.left = frozenLeft;
+  void el.offsetWidth;
+
+  body.classList.add("posing");
+  setAnimalMode(body, a, "pose");
+
+  const rect = body.getBoundingClientRect();
+  positionAnimalBubble(sharedBubble, rect);
+  sharedBubble.classList.add("show");
+
+  setTimeout(()=>{
+    body.classList.remove("posing");
+    sharedBubble.classList.remove("show");
+    setAnimalMode(body, a, "idle");
+  }, 2200);
+}
+
 function buildAnimals(){
   const grass = document.getElementById("grass");
   const sharedBubble = document.getElementById("animalBubble");
@@ -448,27 +488,15 @@ function buildAnimals(){
     setAnimalMode(body, a, "idle");
     animateWalk(el, body, a);
 
-    el.addEventListener("click", ()=>{
-      if(body.classList.contains("posing")) return;
-
-      const frozenLeft = getComputedStyle(el).left;
-      el.style.transition = "none";
-      el.style.left = frozenLeft;
-      void el.offsetWidth;
-
-      body.classList.add("posing");
-      setAnimalMode(body, a, "pose");
-
-      const rect = body.getBoundingClientRect();
-      sharedBubble.style.left = (rect.left + rect.width / 2) + "px";
-      sharedBubble.style.top = (rect.top - 8) + "px";
-      sharedBubble.classList.add("show");
-
-      setTimeout(()=>{
-        body.classList.remove("posing");
-        sharedBubble.classList.remove("show");
-        setAnimalMode(body, a, "idle");
-      }, 2200);
+    // pointerdown instead of click: while the animal is mid-walk its
+    // "left" is CSS-transitioning, so by the time a click would fire
+    // (after touchend) the element can have already slid out from
+    // under the finger, and some mobile browsers then drop the click.
+    // pointerdown fires the instant the finger lands, before that can
+    // happen.
+    el.addEventListener("pointerdown", (e)=>{
+      e.preventDefault();
+      triggerPose(el, body, a, sharedBubble);
     });
   });
 }
