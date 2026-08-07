@@ -38,20 +38,22 @@ const LAYOUT_MOBILE = {
 };
 const LAYOUT = LAYOUT_MOBILE;
 
-// Uniform balloon font range used for every character on mobile. The fit
-// routine below reliably measures against the real circle now, so one
-// shared range keeps every balloon looking consistent — no more
-// per-character guesswork needed. (Per-character balloonFontSizeMobile /
-// balloonMinFontSizeMobile in characters-data.js still win if you set them.)
-const MOBILE_BALLOON_MAX_REM = 1.5;
-const MOBILE_BALLOON_MIN_REM = 0.72;
+// One consistent balloon font size used for every character on mobile —
+// the balloon itself grows to fit the message instead of the font
+// shrinking (see sizeBalloonToContent()). A character's own
+// balloonFontSizeMobile in characters-data.js overrides this if set.
+const MOBILE_BALLOON_FONT_REM = 1.3;
+
+// Bounds for how small/large the balloon itself is allowed to grow.
+const MOBILE_BALLOON_MIN_WIDTH = 220;
+const MOBILE_BALLOON_ASPECT = 0.8; // width / height — <1 makes it a gentle oval, not a perfect circle
 
 const ANIMALS = [
   { id:"dog1", fallbackEmoji:"🐶", idleImg:"dog1-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:110, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
   { id:"dog2", fallbackEmoji:"🐕", idleImg:"dog2-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:95, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
-  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"catpose.png", width:100, reverseFacing:false,
+  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:100, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" },
   { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" }
@@ -251,47 +253,61 @@ function balloonOverlay(){
 }
 
 /* ----------------------------------------------------------------------
-   THE ACTUAL FIX: the old fit routine compared the message text's own
-   scrollHeight to its own clientHeight — but that element has no fixed
-   height of its own, so those two numbers are always equal and the
-   check never caught real overflow. This version measures against the
-   balloon circle's real, fixed content box instead, so it reliably
-   knows when text needs to shrink further.
+   Balloon sizing: rather than shrinking the font to fit a fixed-size
+   balloon (which made long messages noticeably smaller than short
+   ones), the balloon's WIDTH is searched instead — every message
+   renders at the same MOBILE_BALLOON_FONT_REM, and the balloon grows
+   (height follows automatically from the CSS aspect-ratio) just enough
+   to hold it, up to a sensible max. Below that max this reliably fits
+   everything: it measures scrollHeight/scrollWidth against the real
+   padded content box at each candidate width, not against the
+   element's own auto-sized box (which is always equal to itself and
+   would never catch real overflow).
    ---------------------------------------------------------------------- */
-function fitBalloonText(modal, el, preferredSize, minSize){
+function sizeBalloonToContent(modal, el, fontRem){
+  el.style.fontSize = fontRem + "rem";
+  el.style.lineHeight = fontRem >= 1.1 ? "1.2" : "1.28";
+
   const cs = getComputedStyle(modal);
   const padTop = parseFloat(cs.paddingTop) || 0;
   const padBottom = parseFloat(cs.paddingBottom) || 0;
   const padLeft = parseFloat(cs.paddingLeft) || 0;
   const padRight = parseFloat(cs.paddingRight) || 0;
-  // Use the computed (true layout) width/height, NOT getBoundingClientRect —
-  // the balloon's parent animates a CSS scale() from .55 to 1 when it pops
-  // open, and getBoundingClientRect reflects that mid-animation VISUAL size,
-  // which would make this measure against a temporarily shrunk circle and
-  // lock in the wrong font size. Computed style width/height reflects the
-  // true layout box regardless of any transform on it or its ancestors.
-  const modalW = parseFloat(cs.width) || 0;
-  const modalH = parseFloat(cs.height) || 0;
-  const availH = modalH - padTop - padBottom;
-  const availW = modalW - padLeft - padRight;
 
-  function fits(sizeRem){
-    el.style.fontSize = sizeRem + "rem";
-    el.style.lineHeight = sizeRem >= 1.1 ? "1.2" : "1.28";
+  const minW = MOBILE_BALLOON_MIN_WIDTH;
+  const maxWByViewportWidth = window.innerWidth * 0.9;
+  const maxWByViewportHeight = window.innerHeight * 0.78 * MOBILE_BALLOON_ASPECT;
+  const maxW = Math.max(minW, Math.min(maxWByViewportWidth, maxWByViewportHeight, 420));
+
+  function fitsAtWidth(w){
+    modal.style.width = w + "px";
+    const h = w / MOBILE_BALLOON_ASPECT;
+    const availW = w - padLeft - padRight;
+    const availH = h - padTop - padBottom;
     return el.scrollHeight <= availH + 1 && el.scrollWidth <= availW + 1;
   }
 
-  const hi0 = Math.max(minSize, preferredSize);
-  const lo0 = Math.min(minSize, 0.5);
+  if(fitsAtWidth(minW)) return; // smallest balloon already holds it — stay cozy
 
-  if(fits(hi0)) return; // preferred size already fits — done
-
-  let lo = lo0, hi = hi0, best = lo0;
-  for(let i = 0; i < 16; i++){
-    const mid = (lo + hi) / 2;
-    if(fits(mid)){ best = mid; lo = mid; } else { hi = mid; }
+  if(!fitsAtWidth(maxW)){
+    // Even the largest balloon we're willing to show doesn't fit this
+    // message at the standard size — last resort: nudge the font down
+    // a little rather than let text spill past the biggest balloon.
+    let size = fontRem;
+    for(let i = 0; i < 6 && !fitsAtWidth(maxW); i++){
+      size -= 0.08;
+      el.style.fontSize = size + "rem";
+      el.style.lineHeight = size >= 1.1 ? "1.2" : "1.28";
+    }
+    return;
   }
-  fits(best);
+
+  let lo = minW, hi = maxW;
+  for(let i = 0; i < 14; i++){
+    const mid = (lo + hi) / 2;
+    if(fitsAtWidth(mid)){ hi = mid; } else { lo = mid; }
+  }
+  fitsAtWidth(hi);
 }
 
 function openBalloon(c){
@@ -310,17 +326,17 @@ function openBalloon(c){
     `<img class="inlineIcon" src="images/icons/${iconFile}" alt="${c.icon}" ` +
     `onerror="this.replaceWith(document.createTextNode('${c.icon}'));">:</span><br>${c.msg}`;
 
+  const fontRem = c.balloonFontSizeMobile || MOBILE_BALLOON_FONT_REM;
+
+  // Size the balloon to the message BEFORE revealing it (the overlay is
+  // still laid out even at opacity:0, so measuring works fine here) —
+  // that way the pop-in animation starts at its correct final size
+  // instead of visibly resizing right after appearing.
+  sizeBalloonToContent(modal, msgEl, fontRem);
   balloonOverlay().classList.add("show");
 
-  const maxSz = c.balloonFontSizeMobile || MOBILE_BALLOON_MAX_REM;
-  const minSz = c.balloonMinFontSizeMobile || MOBILE_BALLOON_MIN_REM;
-
-  // Run after layout settles (fonts/icons) so the measurement is accurate,
-  // and once more shortly after in case a late-loading icon shifted things.
-  requestAnimationFrame(()=>{
-    fitBalloonText(modal, msgEl, maxSz, minSz);
-    setTimeout(()=> fitBalloonText(modal, msgEl, maxSz, minSz), 120);
-  });
+  // Re-check shortly after in case a late-loading icon/font shifted things.
+  setTimeout(()=> sizeBalloonToContent(modal, msgEl, fontRem), 120);
 }
 
 function closeBalloon(){
@@ -451,7 +467,7 @@ function positionAnimalBubble(bubble, rect){
   bubble.style.top = top + "px";
 }
 
-/* Builds the cloud bubble's inner markup (cloud graphic + message +
+/* Builds the thought-bubble's inner markup (bubble graphic + message +
    optional icon + tail) from the shared ANIMAL_BUBBLE_MESSAGES data. */
 function buildAnimalBubbleHTML(){
   const bubbleMsg = (typeof ANIMAL_BUBBLE_MESSAGES !== "undefined" && ANIMAL_BUBBLE_MESSAGES[0])
@@ -459,7 +475,7 @@ function buildAnimalBubbleHTML(){
   const bubbleIcon = bubbleMsg.icon || "";
   const bubbleIconFile = bubbleMsg.iconFile ? `images/icons/${bubbleMsg.iconFile}` : "";
   let html =
-    `<img class="animalBubbleCloud" src="images/icons/cloud-bubble.png" alt="" loading="eager">` +
+    `<img class="animalBubbleCloud" src="images/thought-bubble.png" alt="" loading="eager">` +
     `<span class="animalBubbleContent">` +
     `<span class="animalBubbleText">${bubbleMsg.text}</span>`;
   if(bubbleIconFile){

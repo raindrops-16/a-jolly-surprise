@@ -235,23 +235,28 @@ html,body{
 
 #balloonFloatWrap{ position:relative; }
 
-/* ============ BALLOON — a genuine, fixed-size circle ============
-   width/height are locked equal (aspect-ratio:1) and won't grow with
-   content, so every character's balloon is the exact same round shape.
-   overflow:hidden + a real JS fit routine (see script-mobile.js) keeps
-   the message from ever spilling past the circle.
+/* ============ BALLOON — a round oval that GROWS to fit the message ============
+   Instead of shrinking the font to squeeze into a fixed circle, the
+   balloon now sizes itself (width via JS, height follows from
+   aspect-ratio) to whatever the message needs at ONE consistent font
+   size — see sizeBalloonToContent() in script-mobile.js. aspect-ratio
+   is slightly less than 1 (an oval, not a perfect circle) since an
+   oval fits a block of paragraph text more efficiently than a circle,
+   so short and long messages both stay round without needing a huge
+   balloon or a shrunk font. The width below is just the starting/
+   fallback size before JS measures the actual message.
 
-   BALLOON FONT SIZE: MOBILE_BALLOON_MAX_REM / MOBILE_BALLOON_MIN_REM
-   near the top of script-mobile.js control the size range used for
-   every character; a character's own balloonFontSizeMobile /
-   balloonMinFontSizeMobile in characters-data.js override it if set. */
+   BALLOON FONT SIZE: MOBILE_BALLOON_FONT_REM near the top of
+   script-mobile.js is the one size used for every character; a
+   character's own balloonFontSizeMobile in characters-data.js
+   overrides it if set. */
 #balloonModal{
-  width:min(90vw, 74dvh, 380px);
-  aspect-ratio:1;
+  width:min(80vw, 66dvh, 320px);
+  aspect-ratio:0.8;
   border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;
-  padding:16%;
+  padding:15% 14%;
   overflow:hidden;
   font-weight:700;
   box-shadow:inset -12px -16px 34px rgba(0,0,0,.18), inset 8px 10px 20px rgba(255,255,255,.22), 0 18px 40px rgba(0,0,0,.5);

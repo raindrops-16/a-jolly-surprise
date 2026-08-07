@@ -1,33 +1,59 @@
 /* ======================================================================
-   DESKTOP-ONLY SCRIPT. Mobile has its own separate script-mobile.js —
-   editing this file never affects the mobile layout, and vice versa.
+   MOBILE-ONLY SCRIPT. Desktop has its own separate script.js — editing
+   this file never affects the desktop layout, and vice versa.
    Character messages/colors/fonts live in characters-data.js (shared).
    ====================================================================== */
 
 const SITE_PASSWORD = "CellsAtWork";
+
+/* The ✕ starts out (in the shared index.html markup) as a child of
+   #balloonModal, which desktop still relies on. But #balloonModal has
+   overflow:hidden to clip long text to the round shape, and that was
+   also clipping the button whenever it sat outside the circle's curve.
+   Moving it to be a sibling inside #balloonFloatWrap instead — done
+   here, mobile-only — lets it float as its own badge above the edge of
+   the circle without touching the shared HTML or desktop's CSS/JS. */
+(function relocateCloseButtonOutsideCircle(){
+  const modal = document.getElementById("balloonModal");
+  const wrap = document.getElementById("balloonFloatWrap");
+  const closeBtn = document.getElementById("balloonClose");
+  if(modal && wrap && closeBtn && closeBtn.parentElement === modal){
+    wrap.insertBefore(closeBtn, modal.nextSibling);
+  }
+})();
 const MUSIC_FILE = "birthday-ost.mp3";
 
-const LAYOUT_DESKTOP = {
-  "yukari": { x: 46.0, y: 29.3, width: 251, z: 28 },
-  "kurumu": { x: 33.0, y: 27.8, width: 249, z: 26 },
-  "mizore": { x: 57.4, y: 27.0, width: 217, z: 21 },
-  "tsukune": { x: 67.1, y: 27.0, width: 214, z: 29 },
-  "moka-inner": { x: 21.6, y: 52.6, width: 330, z: 21 },
-  "moka-outer": { x: 76.6, y: 55.9, width: 220, z: 23 },
-  "winnie-pooh": { x: 89.7, y: 26.8, width: 235, z: 46 },
-  "bubu-dudu": { x: 89.7, y: 72.1, width: 284, z: 50 },
-  "hellokitty": { x: 49.5, y: 74.9, width: 366, z: 43 },
-  "captain-ri-seri": { x: 10.5, y: 66.7, width: 281, z: 39 },
-  "jollibee": { x: 9.9, y: 22.9, width: 311, z: 47 },
+const LAYOUT_MOBILE = {
+  "yukari": { x: 80.5, y: 22.5, width: 309, z: 22 },
+  "kurumu": { x: 18.5, y: 21.0, width: 278, z: 23 },
+  "mizore": { x: 62.9, y: 28.2, width: 257, z: 24 },
+  "tsukune": { x: 40.0, y: 26.7, width: 240, z: 25 },
+  "moka-inner": { x: 17.9, y: 50.8, width: 363, z: 26 },
+  "moka-outer": { x: 81.7, y: 50.2, width: 220, z: 23 },
+  "winnie-pooh": { x: 81.8, y: 82.5, width: 235, z: 46 },
+  "bubu-dudu": { x: 69.9, y: 69.5, width: 284, z: 50 },
+  "hellokitty": { x: 51.5, y: 83.3, width: 346, z: 43 },
+  "captain-ri-seri": { x: 37.7, y: 69.2, width: 281, z: 39 },
+  "jollibee": { x: 18.7, y: 82.8, width: 311, z: 47 },
 };
-const LAYOUT = LAYOUT_DESKTOP;
+const LAYOUT = LAYOUT_MOBILE;
+
+// One consistent balloon font size used for every character on mobile —
+// the balloon itself grows to fit the message instead of the font
+// shrinking (see sizeBalloonToContent()). A character's own
+// balloonFontSizeMobile in characters-data.js overrides this if set.
+const MOBILE_BALLOON_FONT_REM = 1.3;
+
+// Bounds for how small/large the balloon itself is allowed to grow.
+const MOBILE_BALLOON_MIN_WIDTH = 220;
+const MOBILE_BALLOON_ASPECT = 0.8; // width / height — <1 makes it a gentle oval, not a perfect circle
 
 const ANIMALS = [
   { id:"dog1", fallbackEmoji:"🐶", idleImg:"dog1-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:110, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
   { id:"dog2", fallbackEmoji:"🐕", idleImg:"dog2-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:95, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
-  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"catpose.png", width:100, reverseFacing:false,
+  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:100, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" },
   { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" }
@@ -61,6 +87,7 @@ document.getElementById("editModeBtn").addEventListener("click", ()=>{
   panel.classList.toggle("show", editMode);
   if(editMode) panel.classList.remove("collapsed");
   document.querySelectorAll(".charCard").forEach(c => c.classList.toggle("editable", editMode));
+  document.getElementById("hbTitle").classList.toggle("editable", editMode);
   refreshLayoutOutput();
 });
 
@@ -86,11 +113,45 @@ function refreshLayoutOutput(){
     return `  "${key}": { x: ${p.x.toFixed(1)}, y: ${p.y.toFixed(1)}, width: ${Math.round(p.width)}, z: ${p.z} },`;
   });
   document.getElementById("layoutOutput").textContent =
-`// Replace the body of the existing "const LAYOUT_DESKTOP = {...}" object
-// in script.js with these lines.
-const LAYOUT_DESKTOP = {
+`// Replace the body of the existing "const LAYOUT_MOBILE = {...}" object
+// in script-mobile.js with these lines.
+const LAYOUT_MOBILE = {
 ${lines.join("\n")}
 };`;
+}
+
+/* ---------- draggable "Happy Birthday!" title (edit mode only) ---------- */
+const TITLE_POS_KEY = "hbTitlePosMobile";
+function initDraggableTitle(){
+  const title = document.getElementById("hbTitle");
+
+  const saved = JSON.parse(localStorage.getItem(TITLE_POS_KEY) || "null");
+  if(saved && typeof saved.x === "number" && typeof saved.y === "number"){
+    title.style.left = saved.x + "%";
+    title.style.top = saved.y + "%";
+  }
+
+  title.addEventListener("pointerdown", e=>{
+    if(!editMode) return;
+    e.preventDefault();
+    title.classList.add("dragging");
+    const onMove = ev=>{
+      const x = Math.max(0, Math.min(100, (ev.clientX / window.innerWidth) * 100));
+      const y = Math.max(0, Math.min(100, (ev.clientY / window.innerHeight) * 100));
+      title.style.left = x + "%";
+      title.style.top = y + "%";
+    };
+    const onUp = ()=>{
+      title.classList.remove("dragging");
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      const l = parseFloat(title.style.left);
+      const t = parseFloat(title.style.top);
+      localStorage.setItem(TITLE_POS_KEY, JSON.stringify({ x:l, y:t }));
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  });
 }
 
 function applyPosition(card, pos){
@@ -191,22 +252,62 @@ function balloonOverlay(){
   return document.getElementById("balloonOverlay");
 }
 
-function fitBalloonText(el, preferredSize = 1.35, minSize = 0.72){
-  const maxSize = Math.max(minSize, preferredSize);
-  const lowerBound = Math.max(minSize, 0.5);
-  el.style.fontSize = maxSize + "rem";
-  el.style.lineHeight = maxSize >= 1.1 ? "1.2" : "1.28";
-  if(el.scrollHeight <= el.clientHeight + 2) return;
+/* ----------------------------------------------------------------------
+   Balloon sizing: rather than shrinking the font to fit a fixed-size
+   balloon (which made long messages noticeably smaller than short
+   ones), the balloon's WIDTH is searched instead — every message
+   renders at the same MOBILE_BALLOON_FONT_REM, and the balloon grows
+   (height follows automatically from the CSS aspect-ratio) just enough
+   to hold it, up to a sensible max. Below that max this reliably fits
+   everything: it measures scrollHeight/scrollWidth against the real
+   padded content box at each candidate width, not against the
+   element's own auto-sized box (which is always equal to itself and
+   would never catch real overflow).
+   ---------------------------------------------------------------------- */
+function sizeBalloonToContent(modal, el, fontRem){
+  el.style.fontSize = fontRem + "rem";
+  el.style.lineHeight = fontRem >= 1.1 ? "1.2" : "1.28";
 
-  let lo = lowerBound, hi = maxSize, best = lowerBound;
-  for(let i = 0; i < 12; i++){
-    const mid = (lo + hi) / 2;
-    el.style.fontSize = mid + "rem";
-    if(el.scrollHeight <= el.clientHeight + 2){ best = mid; lo = mid; }
-    else hi = mid;
+  const cs = getComputedStyle(modal);
+  const padTop = parseFloat(cs.paddingTop) || 0;
+  const padBottom = parseFloat(cs.paddingBottom) || 0;
+  const padLeft = parseFloat(cs.paddingLeft) || 0;
+  const padRight = parseFloat(cs.paddingRight) || 0;
+
+  const minW = MOBILE_BALLOON_MIN_WIDTH;
+  const maxWByViewportWidth = window.innerWidth * 0.9;
+  const maxWByViewportHeight = window.innerHeight * 0.78 * MOBILE_BALLOON_ASPECT;
+  const maxW = Math.max(minW, Math.min(maxWByViewportWidth, maxWByViewportHeight, 420));
+
+  function fitsAtWidth(w){
+    modal.style.width = w + "px";
+    const h = w / MOBILE_BALLOON_ASPECT;
+    const availW = w - padLeft - padRight;
+    const availH = h - padTop - padBottom;
+    return el.scrollHeight <= availH + 1 && el.scrollWidth <= availW + 1;
   }
-  el.style.fontSize = best + "rem";
-  el.style.lineHeight = best >= 1.1 ? "1.2" : "1.28";
+
+  if(fitsAtWidth(minW)) return; // smallest balloon already holds it — stay cozy
+
+  if(!fitsAtWidth(maxW)){
+    // Even the largest balloon we're willing to show doesn't fit this
+    // message at the standard size — last resort: nudge the font down
+    // a little rather than let text spill past the biggest balloon.
+    let size = fontRem;
+    for(let i = 0; i < 6 && !fitsAtWidth(maxW); i++){
+      size -= 0.08;
+      el.style.fontSize = size + "rem";
+      el.style.lineHeight = size >= 1.1 ? "1.2" : "1.28";
+    }
+    return;
+  }
+
+  let lo = minW, hi = maxW;
+  for(let i = 0; i < 14; i++){
+    const mid = (lo + hi) / 2;
+    if(fitsAtWidth(mid)){ hi = mid; } else { lo = mid; }
+  }
+  fitsAtWidth(hi);
 }
 
 function openBalloon(c){
@@ -220,18 +321,22 @@ function openBalloon(c){
   msgEl.style.fontFamily = c.font || "'Segoe UI', 'Trebuchet MS', Arial, sans-serif";
 
   const iconFile = c.iconFile || (c.key + "-icon.png");
-  const closeBtn = document.getElementById("balloonClose");
-  closeBtn.style.color = c.textColor || "#ffffff";
-  closeBtn.style.background = "rgba(255,255,255,.78)";
-  closeBtn.style.border = "1px solid rgba(0,0,0,.12)";
-  closeBtn.style.boxShadow = "0 2px 8px rgba(0,0,0,.18)";
   msgEl.innerHTML =
     `<span class="nameLine">${c.name} ` +
     `<img class="inlineIcon" src="images/icons/${iconFile}" alt="${c.icon}" ` +
     `onerror="this.replaceWith(document.createTextNode('${c.icon}'));">:</span><br>${c.msg}`;
 
+  const fontRem = c.balloonFontSizeMobile || MOBILE_BALLOON_FONT_REM;
+
+  // Size the balloon to the message BEFORE revealing it (the overlay is
+  // still laid out even at opacity:0, so measuring works fine here) —
+  // that way the pop-in animation starts at its correct final size
+  // instead of visibly resizing right after appearing.
+  sizeBalloonToContent(modal, msgEl, fontRem);
   balloonOverlay().classList.add("show");
-  fitBalloonText(msgEl, c.balloonFontSize || 1.35, c.balloonMinFontSize || 0.72);
+
+  // Re-check shortly after in case a late-loading icon/font shifted things.
+  setTimeout(()=> sizeBalloonToContent(modal, msgEl, fontRem), 120);
 }
 
 function closeBalloon(){
@@ -316,55 +421,6 @@ function dropPaws(el, duration){
   }
 }
 
-/* Builds the cloud bubble's inner markup (cloud graphic + message +
-   optional icon + tail) from the shared ANIMAL_BUBBLE_MESSAGES data. */
-function buildAnimalBubbleHTML(){
-  const bubbleMsg = (typeof ANIMAL_BUBBLE_MESSAGES !== "undefined" && ANIMAL_BUBBLE_MESSAGES[0])
-    || { text: (typeof ANIMAL_BUBBLE_FALLBACK_TEXT !== "undefined" ? ANIMAL_BUBBLE_FALLBACK_TEXT : "Happy Birthday!") };
-  const bubbleIcon = bubbleMsg.icon || "";
-  const bubbleIconFile = bubbleMsg.iconFile ? `images/icons/${bubbleMsg.iconFile}` : "";
-  let html =
-    `<img class="animalBubbleCloud" src="images/icons/cloud-bubble.png" alt="" loading="eager">` +
-    `<span class="animalBubbleContent">` +
-    `<span class="animalBubbleText">${bubbleMsg.text}</span>`;
-  if(bubbleIconFile){
-    html += `<img class="inlineIcon animalBubbleIcon" src="${bubbleIconFile}" alt="${bubbleIcon}" ` +
-      `onerror="this.replaceWith(document.createTextNode('${bubbleIcon}'));">`;
-  }
-  html += `</span><span class="bubbleTail"></span>`;
-  return html;
-}
-
-function fitAnimalBubbleText(bubble){
-  const width = bubble.offsetWidth || 300;
-  const text = bubble.querySelector(".animalBubbleText");
-  if(!text) return;
-  const charCount = text.textContent.replace(/\s+/g, " ").trim().length;
-  const sizeScale = charCount > 24 ? 0.92 : 1;
-  const baseSize = Math.max(0.9, Math.min(1.24, width / 11) * sizeScale);
-  bubble.style.fontSize = baseSize.toFixed(2) + "rem";
-  bubble.style.lineHeight = "1.2";
-}
-
-/* Rotates + resizes the little tail so it always points from the bubble
-   toward the animal that opened it, however the bubble ends up placed. */
-function pointBubbleTail(bubble, animalRect){
-  const tail = bubble.querySelector(".bubbleTail");
-  if(!tail) return;
-  const bubbleRect = bubble.getBoundingClientRect();
-  const tailOriginX = bubbleRect.left + bubbleRect.width * 0.5;
-  const tailOriginY = bubbleRect.top + bubbleRect.height;
-  const targetX = animalRect.left + animalRect.width / 2;
-  const targetY = animalRect.top + animalRect.height / 2;
-  const dx = targetX - tailOriginX;
-  const dy = targetY - tailOriginY;
-  const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
-  const distance = Math.hypot(dx, dy);
-  const newHeight = Math.min(Math.max(16, distance * 0.4), 80);
-  tail.style.height = newHeight + "px";
-  tail.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-}
-
 function animateWalk(el, body, a){
   function step(){
     if(body.classList.contains("posing")){
@@ -397,6 +453,103 @@ function animateWalk(el, body, a){
   step();
 }
 
+/* Clamp the shared speech bubble so it never renders partly off-screen
+   for animals walking near the left/right/top edges. */
+function positionAnimalBubble(bubble, rect){
+  const margin = 12;
+  const bw = bubble.offsetWidth || 220;
+  const bh = bubble.offsetHeight || 140;
+  let left = rect.left + rect.width / 2;
+  let top = rect.top - 8;
+  left = Math.min(window.innerWidth - margin - bw / 2, Math.max(margin + bw / 2, left));
+  top = Math.max(margin + bh, top);
+  bubble.style.left = left + "px";
+  bubble.style.top = top + "px";
+}
+
+/* Builds the thought-bubble's inner markup (bubble graphic + message +
+   optional icon + tail) from the shared ANIMAL_BUBBLE_MESSAGES data. */
+function buildAnimalBubbleHTML(){
+  const bubbleMsg = (typeof ANIMAL_BUBBLE_MESSAGES !== "undefined" && ANIMAL_BUBBLE_MESSAGES[0])
+    || { text: (typeof ANIMAL_BUBBLE_FALLBACK_TEXT !== "undefined" ? ANIMAL_BUBBLE_FALLBACK_TEXT : "Happy Birthday!") };
+  const bubbleIcon = bubbleMsg.icon || "";
+  const bubbleIconFile = bubbleMsg.iconFile ? `images/icons/${bubbleMsg.iconFile}` : "";
+  let html =
+    `<img class="animalBubbleCloud" src="images/thought-bubble.png" alt="" loading="eager">` +
+    `<span class="animalBubbleContent">` +
+    `<span class="animalBubbleText">${bubbleMsg.text}</span>`;
+  if(bubbleIconFile){
+    html += `<img class="inlineIcon animalBubbleIcon" src="${bubbleIconFile}" alt="${bubbleIcon}" ` +
+      `onerror="this.replaceWith(document.createTextNode('${bubbleIcon}'));">`;
+  }
+  html += `</span><span class="bubbleTail"></span>`;
+  return html;
+}
+
+function fitAnimalBubbleText(bubble){
+  const width = bubble.offsetWidth || 240;
+  const text = bubble.querySelector(".animalBubbleText");
+  if(!text) return;
+  const charCount = text.textContent.replace(/\s+/g, " ").trim().length;
+  const sizeScale = charCount > 24 ? 0.9 : 1;
+  const baseSize = Math.max(0.8, Math.min(1.1, width / 11) * sizeScale);
+  bubble.style.fontSize = baseSize.toFixed(2) + "rem";
+  bubble.style.lineHeight = "1.2";
+}
+
+/* Rotates + resizes the little tail so it always points from the bubble
+   toward the animal that opened it, even after positionAnimalBubble()
+   has clamped/shifted the bubble to stay on-screen. */
+function pointBubbleTail(bubble, animalRect){
+  const tail = bubble.querySelector(".bubbleTail");
+  if(!tail) return;
+  const bubbleRect = bubble.getBoundingClientRect();
+  const tailOriginX = bubbleRect.left + bubbleRect.width * 0.5;
+  const tailOriginY = bubbleRect.top + bubbleRect.height;
+  const targetX = animalRect.left + animalRect.width / 2;
+  const targetY = animalRect.top + animalRect.height / 2;
+  const dx = targetX - tailOriginX;
+  const dy = targetY - tailOriginY;
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
+  const distance = Math.hypot(dx, dy);
+  const newHeight = Math.min(Math.max(14, distance * 0.4), 70);
+  tail.style.height = newHeight + "px";
+  tail.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+}
+
+function triggerPose(el, body, a, sharedBubble){
+  if(body.classList.contains("posing")) return;
+
+  // freeze the animal's current on-screen position and cancel any
+  // in-flight "left" transition before switching to the pose sprite
+  const frozenLeft = getComputedStyle(el).left;
+  el.style.transition = "none";
+  el.style.left = frozenLeft;
+  void el.offsetWidth;
+
+  body.classList.add("posing");
+  setAnimalMode(body, a, "pose");
+
+  sharedBubble.innerHTML = buildAnimalBubbleHTML();
+  const rect = body.getBoundingClientRect();
+  positionAnimalBubble(sharedBubble, rect);
+  sharedBubble.classList.remove("hide");
+  sharedBubble.classList.add("show");
+
+  requestAnimationFrame(()=>{
+    fitAnimalBubbleText(sharedBubble);
+    positionAnimalBubble(sharedBubble, rect);
+    pointBubbleTail(sharedBubble, rect);
+  });
+
+  setTimeout(()=>{
+    body.classList.remove("posing");
+    sharedBubble.classList.remove("show");
+    sharedBubble.classList.add("hide");
+    setAnimalMode(body, a, "idle");
+  }, 2200);
+}
+
 function buildAnimals(){
   const grass = document.getElementById("grass");
   const sharedBubble = document.getElementById("animalBubble");
@@ -412,35 +565,15 @@ function buildAnimals(){
     setAnimalMode(body, a, "idle");
     animateWalk(el, body, a);
 
-    el.addEventListener("click", ()=>{
-      if(body.classList.contains("posing")) return;
-
-      const frozenLeft = getComputedStyle(el).left;
-      el.style.transition = "none";
-      el.style.left = frozenLeft;
-      void el.offsetWidth;
-
-      body.classList.add("posing");
-      setAnimalMode(body, a, "pose");
-
-      sharedBubble.innerHTML = buildAnimalBubbleHTML();
-      const rect = body.getBoundingClientRect();
-      sharedBubble.style.left = (rect.left + rect.width / 2) + "px";
-      sharedBubble.style.top = (rect.top - 8) + "px";
-      sharedBubble.classList.remove("hide");
-      sharedBubble.classList.add("show");
-
-      requestAnimationFrame(()=>{
-        fitAnimalBubbleText(sharedBubble);
-        pointBubbleTail(sharedBubble, rect);
-      });
-
-      setTimeout(()=>{
-        body.classList.remove("posing");
-        sharedBubble.classList.remove("show");
-        sharedBubble.classList.add("hide");
-        setAnimalMode(body, a, "idle");
-      }, 2200);
+    // pointerdown instead of click: while the animal is mid-walk its
+    // "left" is CSS-transitioning, so by the time a click would fire
+    // (after touchend) the element can have already slid out from
+    // under the finger, and some mobile browsers then drop the click.
+    // pointerdown fires the instant the finger lands, before that can
+    // happen — this is what was causing "sometimes doesn't pose".
+    el.addEventListener("pointerdown", (e)=>{
+      e.preventDefault();
+      triggerPose(el, body, a, sharedBubble);
     });
   });
 }
@@ -568,5 +701,6 @@ function initSite(){
   initMusic();
   attemptAutoplay();
   initShootingStars();
+  initDraggableTitle();
   refreshLayoutOutput();
 }
