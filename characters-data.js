@@ -60,6 +60,13 @@ const CHARACTERS = [
 
 const CHAR_BY_KEY = Object.fromEntries(CHARACTERS.map(c => [c.key, c]));
 
+/* Message shown in the animals' cloud thought-bubble when tapped/posed.
+   Shared by both desktop and mobile so it only needs editing once. */
+const ANIMAL_BUBBLE_MESSAGES = [
+  { text: "Happy Birthday, Liam!", icon: "🎂", iconFile: "cake-emoji.png" }
+];
+const ANIMAL_BUBBLE_FALLBACK_TEXT = "Happy Birthday, Liam! 🎂";
+
 // Warm up the custom Google Fonts and icon images as soon as the page
 // loads so the first balloon and bubble feel instant and consistent.
 (function preloadBalloonFonts(){

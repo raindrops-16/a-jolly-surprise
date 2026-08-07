@@ -27,9 +27,9 @@ const ANIMALS = [
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
   { id:"dog2", fallbackEmoji:"🐕", idleImg:"dog2-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:95, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
-  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat1-emoji.png", walkImg:"cat-walk.gif", poseImg:"catpose.png", width:100, reverseFacing:false,
+  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"catpose.png", width:100, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" },
-  { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat2-emoji.png", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
+  { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" }
 ];
 
@@ -316,6 +316,55 @@ function dropPaws(el, duration){
   }
 }
 
+/* Builds the cloud bubble's inner markup (cloud graphic + message +
+   optional icon + tail) from the shared ANIMAL_BUBBLE_MESSAGES data. */
+function buildAnimalBubbleHTML(){
+  const bubbleMsg = (typeof ANIMAL_BUBBLE_MESSAGES !== "undefined" && ANIMAL_BUBBLE_MESSAGES[0])
+    || { text: (typeof ANIMAL_BUBBLE_FALLBACK_TEXT !== "undefined" ? ANIMAL_BUBBLE_FALLBACK_TEXT : "Happy Birthday!") };
+  const bubbleIcon = bubbleMsg.icon || "";
+  const bubbleIconFile = bubbleMsg.iconFile ? `images/icons/${bubbleMsg.iconFile}` : "";
+  let html =
+    `<img class="animalBubbleCloud" src="images/icons/cloud-bubble.png" alt="" loading="eager">` +
+    `<span class="animalBubbleContent">` +
+    `<span class="animalBubbleText">${bubbleMsg.text}</span>`;
+  if(bubbleIconFile){
+    html += `<img class="inlineIcon animalBubbleIcon" src="${bubbleIconFile}" alt="${bubbleIcon}" ` +
+      `onerror="this.replaceWith(document.createTextNode('${bubbleIcon}'));">`;
+  }
+  html += `</span><span class="bubbleTail"></span>`;
+  return html;
+}
+
+function fitAnimalBubbleText(bubble){
+  const width = bubble.offsetWidth || 300;
+  const text = bubble.querySelector(".animalBubbleText");
+  if(!text) return;
+  const charCount = text.textContent.replace(/\s+/g, " ").trim().length;
+  const sizeScale = charCount > 24 ? 0.92 : 1;
+  const baseSize = Math.max(0.9, Math.min(1.24, width / 11) * sizeScale);
+  bubble.style.fontSize = baseSize.toFixed(2) + "rem";
+  bubble.style.lineHeight = "1.2";
+}
+
+/* Rotates + resizes the little tail so it always points from the bubble
+   toward the animal that opened it, however the bubble ends up placed. */
+function pointBubbleTail(bubble, animalRect){
+  const tail = bubble.querySelector(".bubbleTail");
+  if(!tail) return;
+  const bubbleRect = bubble.getBoundingClientRect();
+  const tailOriginX = bubbleRect.left + bubbleRect.width * 0.5;
+  const tailOriginY = bubbleRect.top + bubbleRect.height;
+  const targetX = animalRect.left + animalRect.width / 2;
+  const targetY = animalRect.top + animalRect.height / 2;
+  const dx = targetX - tailOriginX;
+  const dy = targetY - tailOriginY;
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
+  const distance = Math.hypot(dx, dy);
+  const newHeight = Math.min(Math.max(16, distance * 0.4), 80);
+  tail.style.height = newHeight + "px";
+  tail.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+}
+
 function animateWalk(el, body, a){
   function step(){
     if(body.classList.contains("posing")){
@@ -374,14 +423,22 @@ function buildAnimals(){
       body.classList.add("posing");
       setAnimalMode(body, a, "pose");
 
+      sharedBubble.innerHTML = buildAnimalBubbleHTML();
       const rect = body.getBoundingClientRect();
       sharedBubble.style.left = (rect.left + rect.width / 2) + "px";
       sharedBubble.style.top = (rect.top - 8) + "px";
+      sharedBubble.classList.remove("hide");
       sharedBubble.classList.add("show");
+
+      requestAnimationFrame(()=>{
+        fitAnimalBubbleText(sharedBubble);
+        pointBubbleTail(sharedBubble, rect);
+      });
 
       setTimeout(()=>{
         body.classList.remove("posing");
         sharedBubble.classList.remove("show");
+        sharedBubble.classList.add("hide");
         setAnimalMode(body, a, "idle");
       }, 2200);
     });

@@ -5,11 +5,27 @@
    ====================================================================== */
 
 const SITE_PASSWORD = "CellsAtWork";
+
+/* The ✕ starts out (in the shared index.html markup) as a child of
+   #balloonModal, which desktop still relies on. But #balloonModal has
+   overflow:hidden to clip long text to the round shape, and that was
+   also clipping the button whenever it sat outside the circle's curve.
+   Moving it to be a sibling inside #balloonFloatWrap instead — done
+   here, mobile-only — lets it float as its own badge above the edge of
+   the circle without touching the shared HTML or desktop's CSS/JS. */
+(function relocateCloseButtonOutsideCircle(){
+  const modal = document.getElementById("balloonModal");
+  const wrap = document.getElementById("balloonFloatWrap");
+  const closeBtn = document.getElementById("balloonClose");
+  if(modal && wrap && closeBtn && closeBtn.parentElement === modal){
+    wrap.insertBefore(closeBtn, modal.nextSibling);
+  }
+})();
 const MUSIC_FILE = "birthday-ost.mp3";
 
 const LAYOUT_MOBILE = {
-  "yukari": { x: 18.3, y: 19.7, width: 309, z: 22 },
-  "kurumu": { x: 83.9, y: 18.6, width: 278, z: 23 },
+  "yukari": { x: 80.5, y: 22.5, width: 309, z: 22 },
+  "kurumu": { x: 18.5, y: 21.0, width: 278, z: 23 },
   "mizore": { x: 62.9, y: 28.2, width: 257, z: 24 },
   "tsukune": { x: 40.0, y: 26.7, width: 240, z: 25 },
   "moka-inner": { x: 17.9, y: 50.8, width: 363, z: 26 },
@@ -35,9 +51,9 @@ const ANIMALS = [
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
   { id:"dog2", fallbackEmoji:"🐕", idleImg:"dog2-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:95, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
-  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat1-emoji.png", walkImg:"cat-walk.gif", poseImg:"catpose.png", width:100, reverseFacing:false,
+  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"catpose.png", width:100, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" },
-  { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat2-emoji.png", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
+  { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" }
 ];
 
@@ -289,11 +305,6 @@ function openBalloon(c){
   msgEl.style.fontFamily = c.font || "'Segoe UI', 'Trebuchet MS', Arial, sans-serif";
 
   const iconFile = c.iconFile || (c.key + "-icon.png");
-  const closeBtn = document.getElementById("balloonClose");
-  closeBtn.style.color = c.textColor || "#ffffff";
-  closeBtn.style.background = "rgba(255,255,255,.85)";
-  closeBtn.style.border = "1px solid rgba(0,0,0,.12)";
-  closeBtn.style.boxShadow = "0 2px 8px rgba(0,0,0,.25)";
   msgEl.innerHTML =
     `<span class="nameLine">${c.name} ` +
     `<img class="inlineIcon" src="images/icons/${iconFile}" alt="${c.icon}" ` +
@@ -440,6 +451,56 @@ function positionAnimalBubble(bubble, rect){
   bubble.style.top = top + "px";
 }
 
+/* Builds the cloud bubble's inner markup (cloud graphic + message +
+   optional icon + tail) from the shared ANIMAL_BUBBLE_MESSAGES data. */
+function buildAnimalBubbleHTML(){
+  const bubbleMsg = (typeof ANIMAL_BUBBLE_MESSAGES !== "undefined" && ANIMAL_BUBBLE_MESSAGES[0])
+    || { text: (typeof ANIMAL_BUBBLE_FALLBACK_TEXT !== "undefined" ? ANIMAL_BUBBLE_FALLBACK_TEXT : "Happy Birthday!") };
+  const bubbleIcon = bubbleMsg.icon || "";
+  const bubbleIconFile = bubbleMsg.iconFile ? `images/icons/${bubbleMsg.iconFile}` : "";
+  let html =
+    `<img class="animalBubbleCloud" src="images/icons/cloud-bubble.png" alt="" loading="eager">` +
+    `<span class="animalBubbleContent">` +
+    `<span class="animalBubbleText">${bubbleMsg.text}</span>`;
+  if(bubbleIconFile){
+    html += `<img class="inlineIcon animalBubbleIcon" src="${bubbleIconFile}" alt="${bubbleIcon}" ` +
+      `onerror="this.replaceWith(document.createTextNode('${bubbleIcon}'));">`;
+  }
+  html += `</span><span class="bubbleTail"></span>`;
+  return html;
+}
+
+function fitAnimalBubbleText(bubble){
+  const width = bubble.offsetWidth || 240;
+  const text = bubble.querySelector(".animalBubbleText");
+  if(!text) return;
+  const charCount = text.textContent.replace(/\s+/g, " ").trim().length;
+  const sizeScale = charCount > 24 ? 0.9 : 1;
+  const baseSize = Math.max(0.8, Math.min(1.1, width / 11) * sizeScale);
+  bubble.style.fontSize = baseSize.toFixed(2) + "rem";
+  bubble.style.lineHeight = "1.2";
+}
+
+/* Rotates + resizes the little tail so it always points from the bubble
+   toward the animal that opened it, even after positionAnimalBubble()
+   has clamped/shifted the bubble to stay on-screen. */
+function pointBubbleTail(bubble, animalRect){
+  const tail = bubble.querySelector(".bubbleTail");
+  if(!tail) return;
+  const bubbleRect = bubble.getBoundingClientRect();
+  const tailOriginX = bubbleRect.left + bubbleRect.width * 0.5;
+  const tailOriginY = bubbleRect.top + bubbleRect.height;
+  const targetX = animalRect.left + animalRect.width / 2;
+  const targetY = animalRect.top + animalRect.height / 2;
+  const dx = targetX - tailOriginX;
+  const dy = targetY - tailOriginY;
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
+  const distance = Math.hypot(dx, dy);
+  const newHeight = Math.min(Math.max(14, distance * 0.4), 70);
+  tail.style.height = newHeight + "px";
+  tail.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+}
+
 function triggerPose(el, body, a, sharedBubble){
   if(body.classList.contains("posing")) return;
 
@@ -453,13 +514,22 @@ function triggerPose(el, body, a, sharedBubble){
   body.classList.add("posing");
   setAnimalMode(body, a, "pose");
 
+  sharedBubble.innerHTML = buildAnimalBubbleHTML();
   const rect = body.getBoundingClientRect();
   positionAnimalBubble(sharedBubble, rect);
+  sharedBubble.classList.remove("hide");
   sharedBubble.classList.add("show");
+
+  requestAnimationFrame(()=>{
+    fitAnimalBubbleText(sharedBubble);
+    positionAnimalBubble(sharedBubble, rect);
+    pointBubbleTail(sharedBubble, rect);
+  });
 
   setTimeout(()=>{
     body.classList.remove("posing");
     sharedBubble.classList.remove("show");
+    sharedBubble.classList.add("hide");
     setAnimalMode(body, a, "idle");
   }, 2200);
 }
