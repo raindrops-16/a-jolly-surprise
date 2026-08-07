@@ -6,7 +6,13 @@
 <title>It's Your Birthday! 🎉🎊</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Henny+Penny&family=Emilys+Candy&family=Crafty+Girls&family=Snowburst+One&family=Atma&family=Englebert&family=Jim+Nightshade&family=Sniglet&family=Ruge+Boogie&family=Butterfly+Kids&family=Mystery+Quest&family=Damion&family=Mountains+of+Christmas&family=Fontdiner+Swanky&family=Rock+Salt&family=Comforter+Brush&family=Liu+Jian+Mao+Cao&family=Indie+Flower&family=Sunshiney&family=Sue+Ellen+Francisco&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<script>
+  /* Decide ONCE, up front, which device experience to load.
+     Desktop keeps loading styles.css / script.js, completely untouched.
+     Mobile (<=480px) loads styles-mobile.css / script-mobile.js instead. */
+  window.IS_MOBILE_SITE = window.matchMedia("(max-width: 480px)").matches;
+  document.write('<link rel="stylesheet" href="' + (window.IS_MOBILE_SITE ? "styles-mobile.css" : "styles.css") + '">');
+</script>
 </head>
 <body>
 
@@ -31,15 +37,12 @@
     <div id="charLayer"></div>
 
     <div id="grass"></div>
-    <img id="animalBubble" src="images/thought-bubble.png" alt="Happy Birthday, Liam!">
+    <div id="animalBubble">Happy Birthday, Liam! 🎂</div>
 
     <div id="layoutPanel">
-      <div id="layoutPanelHeader">
-        <span>Layout editor</span>
-        <button id="layoutMinBtn" title="Minimize">➖</button>
-      </div>
+      <div id="layoutPanelHeader">Layout Editor <button id="layoutMinBtn">➖</button></div>
       <div id="layoutPanelBody">
-        <div id="layoutHint">Drag a character to move · scroll over one to resize · click one to bring to front</div>
+        <div id="layoutHint">Drag a character (or the title) to move · scroll over a character to resize · click to bring to front</div>
         <pre id="layoutOutput"></pre>
         <button id="copyLayoutBtn">Copy layout code</button>
       </div>
@@ -59,6 +62,9 @@
     </div>
   </div>
 
-<script src="script.js"></script>
+<script src="characters-data.js"></script>
+<script>
+  document.write('<script src="' + (window.IS_MOBILE_SITE ? "script-mobile.js" : "script.js") + '"><\/script>');
+</script>
 </body>
 </html>
