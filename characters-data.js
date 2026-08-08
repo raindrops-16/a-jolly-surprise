@@ -16,7 +16,7 @@ const CHARACTERS = [
   { key:"tsukune", name:"Tsukune", img:"tsukune.png", color:"#424194", icon:"🧛‍♂️",
     iconFile:"vampire-icon.png", font:"'Sue Ellen Francisco', cursive",
     balloonFontSize:1.9,
-    balloonFontSizeMobile:1.3,
+    balloonFontSizeMobile:1.3, // Tsukune
     msg:"Happy Birthday! I hope you have an awesome day and that all your wishes come true. Thanks for everything, and here's to another great year. Enjoy your special day! 👊" },
 
   { key:"yukari", name:"Yukari", img:"yukari.png", color:"#9b5de5", icon:"🪄",

@@ -369,6 +369,24 @@ function dropPaws(el, duration){
   }
 }
 
+/* Picks a walk target that keeps some distance from every OTHER animal's
+   current position. Without this, two animals can end up right on top
+   of each other — and since they share the same z-index, a tap in that
+   spot lands on whichever one happens to be later in the DOM/stacking
+   order, not necessarily the one that was visually tapped. That's what
+   was causing the thought-bubble to appear next to the wrong animal. */
+const ANIMAL_MIN_GAP_PX = 90;
+function pickWalkTarget(grassW, el){
+  const maxX = grassW - 70;
+  const others = Array.from(document.querySelectorAll(".animal")).filter(o => o !== el);
+  for(let attempt = 0; attempt < 12; attempt++){
+    const candidate = Math.random() * maxX;
+    const tooClose = others.some(o => Math.abs(o.offsetLeft - candidate) < ANIMAL_MIN_GAP_PX);
+    if(!tooClose) return candidate;
+  }
+  return Math.random() * maxX; // couldn't find a clear spot — just go, better than freezing forever
+}
+
 function animateWalk(el, body, a){
   function step(){
     if(body.classList.contains("posing")){
@@ -378,7 +396,7 @@ function animateWalk(el, body, a){
 
     const grassW = document.getElementById("grass").clientWidth;
     const curLeftPx = el.offsetLeft;
-    const target = Math.random() * (grassW - 70);
+    const target = pickWalkTarget(grassW, el);
     const distance = Math.abs(target - curLeftPx);
     const dur = Math.max(3000, Math.min(9000, (distance / SPEED_PX_PER_SEC) * 1000));
     let facing = target < curLeftPx ? -1 : 1;
