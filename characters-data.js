@@ -34,13 +34,13 @@ const CHARACTERS = [
   { key:"kurumu", name:"Kurumu", img:"kurumu.png", color:"#df0747", icon:"🪽",
     iconFile:"wings-icon.png", font:"'Emilys Candy', cursive",
     balloonFontSize:1.4,
-    balloonFontSizeMobile:0.98,
+    balloonFontSizeMobile:1.08,
     msg:"Happy Birthday! I hope today is filled with lots of happiness, sweet surprises, and wonderful memories. You deserve to smile all day long! Hehe... I wish I could spend the whole day celebrating with you. Have an amazing birthday, okay? 💙" },
 
   { key:"jollibee", name:"Jollibee & Friends", img:"jollibee.png", color:"#ffb703", icon:"🐝",
     iconFile:"bee-icon.png", font:"'Indie Flower', cursive",
     balloonFontSize:1.5,
-    balloonFontSizeMobile:1.4,
+    balloonFontSizeMobile:1.3,
     msg:"Happy Birthday to you! We hope your day is filled with love, laughter, yummy food, and the people who make you smile. Wishing you a year full of happiness and exciting adventures. Have a Jolly Happy Birthday! 🎉🎂🎈" },
 
   { key:"hellokitty", name:"Hello Kitty & Friends", img:"kitty.png", color:"#2a9d8f", icon:"🎀",
@@ -58,7 +58,7 @@ const CHARACTERS = [
   { key:"moka-outer", name:"Outer Moka", img:"moka-outer.png", color:"#00b7c2", icon:"🌸",
     iconFile:"moka-outer-icon.png", font:"'Liu Jian Mao Cao', cursive",
     balloonFontSize:1.3,
-    balloonFontSizeMobile:1.0,
+    balloonFontSizeMobile:1.03,
     msg:"Happy Birthday! Yay! I'm so happy I get to celebrate this special day with you. May your heart always be filled with love, your dreams come true, and every day bring you something to smile about! Eat lots of delicious cake, have tons of fun, and remember that I'll always be cheering you on. Have an amazing birthday! 🌹💕😘" },
 
   { key:"bubu-dudu", name:"Bubu & Dudu", img:"bubu.png", color:"#ffffff", textColor:"#12204a", icon:"🧸",
