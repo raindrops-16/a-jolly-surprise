@@ -235,24 +235,15 @@ html,body{
 
 #balloonFloatWrap{ position:relative; }
 
-/* ============ BALLOON — a round oval that GROWS to fit the message ============
-   Instead of shrinking the font to squeeze into a fixed circle, the
-   balloon now sizes itself (width via JS, height follows from
-   aspect-ratio) to whatever the message needs at ONE consistent font
-   size — see sizeBalloonToContent() in script-mobile.js. aspect-ratio
-   is slightly less than 1 (an oval, not a perfect circle) since an
-   oval fits a block of paragraph text more efficiently than a circle,
-   so short and long messages both stay round without needing a huge
-   balloon or a shrunk font. The width below is just the starting/
-   fallback size before JS measures the actual message.
-
-   BALLOON FONT SIZE: MOBILE_BALLOON_FONT_REM near the top of
-   script-mobile.js is the one size used for every character; a
-   character's own balloonFontSizeMobile in characters-data.js
-   overrides it if set. */
+/* ============ BALLOON — one fixed round size/shape for every character ============
+   No JS resizing and no auto font-shrinking anymore — every balloon is
+   this exact size and shape, and each character's balloonFontSizeMobile
+   (characters-data.js) is applied exactly as given. If a message doesn't
+   fit, that character's number is what to edit — nothing here measures
+   or adjusts automatically. */
 #balloonModal{
-  width:min(80vw, 66dvh, 320px);
-  aspect-ratio:0.8;
+  width:min(84vw, 70dvh, 340px);
+  aspect-ratio:0.85;
   border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;
@@ -295,9 +286,13 @@ html,body{
   transform-origin:top center;
   animation:stringSway 2.6s ease-in-out infinite;
 }
+/* No rotate() here anymore — animating rotation on an element containing
+   thin cursive-font strokes (the descenders on letters like y/p) is what
+   was causing those small gaps/breaks in the text. A plain vertical bob
+   doesn't have that problem. */
 @keyframes balloonFloat{
-  0%,100%{transform:translateY(0) rotate(-1.4deg);}
-  50%{transform:translateY(-14px) rotate(1.4deg);}
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-14px);}
 }
 @keyframes stringSway{
   0%,100%{transform:rotate(-5deg);}
@@ -333,71 +328,22 @@ html,body{
   animation:pawFade 8s ease-out forwards;}
 @keyframes pawFade{0%{opacity:1;}75%{opacity:.6;}100%{opacity:0;}}
 
+/* The animal thought-bubble is just images/thought-bubble.png shown at
+   this size — the message and its own tail are baked into that image,
+   so there's no separate text/icon/tail styling needed here anymore. */
 #animalBubble{
   position:fixed;z-index:55;
   transform:translate(-50%,-100%) scale(0.9);
   transform-origin:bottom center;
   width:clamp(220px, 58vw, 320px);
-  min-width:200px;
-  min-height:150px;
-  padding:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-wrap:nowrap;
-  text-align:center;
-  color:#222;font-weight:700;
-  font-size:1rem;
-  font-family:'Rock Salt', cursive;
-  white-space:normal;
   opacity:0;
   transition:transform .25s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
   pointer-events:none;
 }
-.animalBubbleCloud{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  object-fit:contain;
-  pointer-events:none;
-  z-index:0;
-}
-.animalBubbleContent{
-  position:relative;
-  z-index:1;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:.2rem;
-  max-width:80%;
-  padding:1.2rem 1.1rem 1.1rem;
-  text-align:center;
-}
-.animalBubbleText{
-  display:inline-block;
-  white-space:normal;
-  max-width:100%;
-  word-break:break-word;
-  line-height:1.2;
-}
-.animalBubbleIcon{
-  display:inline-block;
-  width:1.2em;
-  height:1.2em;
-  vertical-align:-0.1em;
-}
-#animalBubble .bubbleTail{
-  position:absolute;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%) rotate(0deg);
-  width:10px;
-  height:24px;
-  border-radius:7px;
-  background:#ffffffee;
-  box-shadow:0 8px 18px rgba(0,0,0,.12);
-  transform-origin:top center;
-  z-index:1;
+.animalBubbleImg{
+  display:block;
+  width:100%;
+  height:auto;
 }
 #animalBubble.show{transform:translate(-50%,-100%) scale(1);opacity:1;}
 #animalBubble.hide{opacity:0;transform:translate(-50%,-100%) scale(0.85);}

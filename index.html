@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>It's Your Birthday! 🎉🎊</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Henny+Penny&family=Emilys+Candy&family=Crafty+Girls&family=Snowburst+One&family=Atma&family=Englebert&family=Jim+Nightshade&family=Sniglet&family=Ruge+Boogie&family=Butterfly+Kids&family=Mystery+Quest&family=Damion&family=Mountains+of+Christmas&family=Fontdiner+Swanky&family=Rock+Salt&family=Comforter+Brush&family=Liu+Jian+Mao+Cao&family=Indie+Flower&family=Sunshiney&family=Sue+Ellen+Francisco&display=swap" rel="stylesheet">
-<script>
-  /* Decide ONCE, up front, which device experience to load.
-     Desktop keeps loading styles.css / script.js, completely untouched.
-     Mobile (<=480px) loads styles-mobile.css / script-mobile.js instead. */
-  window.IS_MOBILE_SITE = window.matchMedia("(max-width: 480px)").matches;
-  document.write('<link rel="stylesheet" href="' + (window.IS_MOBILE_SITE ? "styles-mobile.css" : "styles.css") + '">');
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Henny+Penny&family=Emilys+Candy&family=Crafty+Girls&family=Snowburst+One&family=Atma&family=Englebert&family=Jim+Nightshade&family=Sniglet&family=Ruge+Boogie&family=Butterfly+Kids&family=Mystery+Quest&family=Damion&family=Mountains+of+Christmas&family=Fontdiner+Swanky&family=Rock+Salt&family=Comforter+Brush&family=Liu+Jian+Mao+Cao&family=Indie+Flower&family=Sunshiney&family=Sue+Ellen+Francisco&display=block" rel="stylesheet">
+<!-- CSS split by real screen width using the browser's own media-query
+     matching on the <link> tag itself — no JS involved, so this can't
+     ever pick the wrong file or race against anything. Desktop only
+     ever downloads/applies styles.css; mobile only styles-mobile.css. -->
+<link rel="stylesheet" href="styles.css" media="(min-width: 481px)">
+<link rel="stylesheet" href="styles-mobile.css" media="(max-width: 480px)">
 </head>
 <body>
 
@@ -37,7 +36,7 @@
     <div id="charLayer"></div>
 
     <div id="grass"></div>
-    <div id="animalBubble">Happy Birthday, Liam! 🎂</div>
+    <div id="animalBubble"><img src="images/thought-bubble.png" alt="Happy Birthday, Liam!"></div>
 
     <div id="layoutPanel">
       <div id="layoutPanelHeader">Layout Editor <button id="layoutMinBtn">➖</button></div>
@@ -64,7 +63,20 @@
 
 <script src="characters-data.js"></script>
 <script>
-  document.write('<script src="' + (window.IS_MOBILE_SITE ? "script-mobile.js" : "script.js") + '"><\/script>');
+  /* Same device decision as the CSS above, made once here too, since a
+     <script src> can't be conditionally selected with a media attribute
+     the way a stylesheet can. Loaded via a normal created <script> tag
+     (not document.write, which has known reliability issues — it can
+     silently no-op depending on how/when the page loaded) so this
+     reliably fetches exactly one of the two device scripts. Because
+     script.js and script-mobile.js both declare top-level consts of the
+     same names, they must never both load on the same page. */
+  (function loadDeviceScript(){
+    var isMobile = window.matchMedia("(max-width: 480px)").matches;
+    var s = document.createElement("script");
+    s.src = isMobile ? "script-mobile.js" : "script.js";
+    document.body.appendChild(s);
+  })();
 </script>
 </body>
 </html>

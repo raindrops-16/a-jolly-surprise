@@ -38,15 +38,15 @@ const LAYOUT_MOBILE = {
 };
 const LAYOUT = LAYOUT_MOBILE;
 
-// One consistent balloon font size used for every character on mobile —
-// the balloon itself grows to fit the message instead of the font
-// shrinking (see sizeBalloonToContent()). A character's own
-// balloonFontSizeMobile in characters-data.js overrides this if set.
-const MOBILE_BALLOON_FONT_REM = 1.3;
+// Position of the "Happy Birthday!" title, same idea as LAYOUT_MOBILE
+// above: x/y are the center of the title as a % of the screen. Edit
+// these numbers directly, OR use 🖐️ edit mode and drag the title —
+// dragging updates this value live and "Copy layout code" includes it.
+const TITLE_MOBILE = { x: 50, y: 54 };
 
-// Bounds for how small/large the balloon itself is allowed to grow.
-const MOBILE_BALLOON_MIN_WIDTH = 220;
-const MOBILE_BALLOON_ASPECT = 0.8; // width / height — <1 makes it a gentle oval, not a perfect circle
+// Fallback only — every character in characters-data.js has its own
+// balloonFontSizeMobile now, this is just a safety net if one is missing.
+const MOBILE_BALLOON_FALLBACK_FONT_REM = 1.2;
 
 const ANIMALS = [
   { id:"dog1", fallbackEmoji:"🐶", idleImg:"dog1-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:110, reverseFacing:false,
@@ -117,19 +117,26 @@ function refreshLayoutOutput(){
 // in script-mobile.js with these lines.
 const LAYOUT_MOBILE = {
 ${lines.join("\n")}
-};`;
+};
+
+// Replace the existing "const TITLE_MOBILE = {...}" line with this one.
+const TITLE_MOBILE = { x: ${TITLE_MOBILE.x.toFixed(1)}, y: ${TITLE_MOBILE.y.toFixed(1)} };`;
 }
 
-/* ---------- draggable "Happy Birthday!" title (edit mode only) ---------- */
-const TITLE_POS_KEY = "hbTitlePosMobile";
+/* ---------- draggable "Happy Birthday!" title (edit mode only) ----------
+   Applies TITLE_MOBILE on load. Dragging in edit mode updates that same
+   object live and refreshes the copyable code in the Layout Editor panel
+   — same pattern as the characters, so there's one consistent place
+   (script-mobile.js) to find and hand-edit every coordinate on the site. */
+function applyTitlePosition(){
+  const title = document.getElementById("hbTitle");
+  title.style.left = TITLE_MOBILE.x + "%";
+  title.style.top = TITLE_MOBILE.y + "%";
+}
+
 function initDraggableTitle(){
   const title = document.getElementById("hbTitle");
-
-  const saved = JSON.parse(localStorage.getItem(TITLE_POS_KEY) || "null");
-  if(saved && typeof saved.x === "number" && typeof saved.y === "number"){
-    title.style.left = saved.x + "%";
-    title.style.top = saved.y + "%";
-  }
+  applyTitlePosition();
 
   title.addEventListener("pointerdown", e=>{
     if(!editMode) return;
@@ -138,6 +145,8 @@ function initDraggableTitle(){
     const onMove = ev=>{
       const x = Math.max(0, Math.min(100, (ev.clientX / window.innerWidth) * 100));
       const y = Math.max(0, Math.min(100, (ev.clientY / window.innerHeight) * 100));
+      TITLE_MOBILE.x = x;
+      TITLE_MOBILE.y = y;
       title.style.left = x + "%";
       title.style.top = y + "%";
     };
@@ -145,9 +154,7 @@ function initDraggableTitle(){
       title.classList.remove("dragging");
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
-      const l = parseFloat(title.style.left);
-      const t = parseFloat(title.style.top);
-      localStorage.setItem(TITLE_POS_KEY, JSON.stringify({ x:l, y:t }));
+      refreshLayoutOutput();
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
@@ -252,64 +259,11 @@ function balloonOverlay(){
   return document.getElementById("balloonOverlay");
 }
 
-/* ----------------------------------------------------------------------
-   Balloon sizing: rather than shrinking the font to fit a fixed-size
-   balloon (which made long messages noticeably smaller than short
-   ones), the balloon's WIDTH is searched instead — every message
-   renders at the same MOBILE_BALLOON_FONT_REM, and the balloon grows
-   (height follows automatically from the CSS aspect-ratio) just enough
-   to hold it, up to a sensible max. Below that max this reliably fits
-   everything: it measures scrollHeight/scrollWidth against the real
-   padded content box at each candidate width, not against the
-   element's own auto-sized box (which is always equal to itself and
-   would never catch real overflow).
-   ---------------------------------------------------------------------- */
-function sizeBalloonToContent(modal, el, fontRem){
-  el.style.fontSize = fontRem + "rem";
-  el.style.lineHeight = fontRem >= 1.1 ? "1.2" : "1.28";
-
-  const cs = getComputedStyle(modal);
-  const padTop = parseFloat(cs.paddingTop) || 0;
-  const padBottom = parseFloat(cs.paddingBottom) || 0;
-  const padLeft = parseFloat(cs.paddingLeft) || 0;
-  const padRight = parseFloat(cs.paddingRight) || 0;
-
-  const minW = MOBILE_BALLOON_MIN_WIDTH;
-  const maxWByViewportWidth = window.innerWidth * 0.9;
-  const maxWByViewportHeight = window.innerHeight * 0.78 * MOBILE_BALLOON_ASPECT;
-  const maxW = Math.max(minW, Math.min(maxWByViewportWidth, maxWByViewportHeight, 420));
-
-  function fitsAtWidth(w){
-    modal.style.width = w + "px";
-    const h = w / MOBILE_BALLOON_ASPECT;
-    const availW = w - padLeft - padRight;
-    const availH = h - padTop - padBottom;
-    return el.scrollHeight <= availH + 1 && el.scrollWidth <= availW + 1;
-  }
-
-  if(fitsAtWidth(minW)) return; // smallest balloon already holds it — stay cozy
-
-  if(!fitsAtWidth(maxW)){
-    // Even the largest balloon we're willing to show doesn't fit this
-    // message at the standard size — last resort: nudge the font down
-    // a little rather than let text spill past the biggest balloon.
-    let size = fontRem;
-    for(let i = 0; i < 6 && !fitsAtWidth(maxW); i++){
-      size -= 0.08;
-      el.style.fontSize = size + "rem";
-      el.style.lineHeight = size >= 1.1 ? "1.2" : "1.28";
-    }
-    return;
-  }
-
-  let lo = minW, hi = maxW;
-  for(let i = 0; i < 14; i++){
-    const mid = (lo + hi) / 2;
-    if(fitsAtWidth(mid)){ hi = mid; } else { lo = mid; }
-  }
-  fitsAtWidth(hi);
-}
-
+/* Balloon sizing is now fully manual: the balloon is a fixed size/shape
+   (set in styles-mobile.css) for every character, and each character's
+   balloonFontSizeMobile (characters-data.js) is applied exactly as
+   given — nothing measures, shrinks, or grows automatically. If a
+   message doesn't fit, that character's number is what to change. */
 function openBalloon(c){
   const modal = document.getElementById("balloonModal");
   const msgEl = document.getElementById("balloonMsg");
@@ -326,17 +280,11 @@ function openBalloon(c){
     `<img class="inlineIcon" src="images/icons/${iconFile}" alt="${c.icon}" ` +
     `onerror="this.replaceWith(document.createTextNode('${c.icon}'));">:</span><br>${c.msg}`;
 
-  const fontRem = c.balloonFontSizeMobile || MOBILE_BALLOON_FONT_REM;
+  const fontRem = c.balloonFontSizeMobile || MOBILE_BALLOON_FALLBACK_FONT_REM;
+  msgEl.style.fontSize = fontRem + "rem";
+  msgEl.style.lineHeight = fontRem >= 1.1 ? "1.2" : "1.28";
 
-  // Size the balloon to the message BEFORE revealing it (the overlay is
-  // still laid out even at opacity:0, so measuring works fine here) —
-  // that way the pop-in animation starts at its correct final size
-  // instead of visibly resizing right after appearing.
-  sizeBalloonToContent(modal, msgEl, fontRem);
   balloonOverlay().classList.add("show");
-
-  // Re-check shortly after in case a late-loading icon/font shifted things.
-  setTimeout(()=> sizeBalloonToContent(modal, msgEl, fontRem), 120);
 }
 
 function closeBalloon(){
@@ -467,54 +415,12 @@ function positionAnimalBubble(bubble, rect){
   bubble.style.top = top + "px";
 }
 
-/* Builds the thought-bubble's inner markup (bubble graphic + message +
-   optional icon + tail) from the shared ANIMAL_BUBBLE_MESSAGES data. */
+/* The bubble is just the thought-bubble.png image — "Happy Birthday,
+   Liam!" is baked into that image already, so there's no text to build
+   or fit here. Still worth its own function so triggerPose stays tidy
+   and it's easy to swap the graphic later if needed. */
 function buildAnimalBubbleHTML(){
-  const bubbleMsg = (typeof ANIMAL_BUBBLE_MESSAGES !== "undefined" && ANIMAL_BUBBLE_MESSAGES[0])
-    || { text: (typeof ANIMAL_BUBBLE_FALLBACK_TEXT !== "undefined" ? ANIMAL_BUBBLE_FALLBACK_TEXT : "Happy Birthday!") };
-  const bubbleIcon = bubbleMsg.icon || "";
-  const bubbleIconFile = bubbleMsg.iconFile ? `images/icons/${bubbleMsg.iconFile}` : "";
-  let html =
-    `<img class="animalBubbleCloud" src="images/thought-bubble.png" alt="" loading="eager">` +
-    `<span class="animalBubbleContent">` +
-    `<span class="animalBubbleText">${bubbleMsg.text}</span>`;
-  if(bubbleIconFile){
-    html += `<img class="inlineIcon animalBubbleIcon" src="${bubbleIconFile}" alt="${bubbleIcon}" ` +
-      `onerror="this.replaceWith(document.createTextNode('${bubbleIcon}'));">`;
-  }
-  html += `</span><span class="bubbleTail"></span>`;
-  return html;
-}
-
-function fitAnimalBubbleText(bubble){
-  const width = bubble.offsetWidth || 240;
-  const text = bubble.querySelector(".animalBubbleText");
-  if(!text) return;
-  const charCount = text.textContent.replace(/\s+/g, " ").trim().length;
-  const sizeScale = charCount > 24 ? 0.9 : 1;
-  const baseSize = Math.max(0.8, Math.min(1.1, width / 11) * sizeScale);
-  bubble.style.fontSize = baseSize.toFixed(2) + "rem";
-  bubble.style.lineHeight = "1.2";
-}
-
-/* Rotates + resizes the little tail so it always points from the bubble
-   toward the animal that opened it, even after positionAnimalBubble()
-   has clamped/shifted the bubble to stay on-screen. */
-function pointBubbleTail(bubble, animalRect){
-  const tail = bubble.querySelector(".bubbleTail");
-  if(!tail) return;
-  const bubbleRect = bubble.getBoundingClientRect();
-  const tailOriginX = bubbleRect.left + bubbleRect.width * 0.5;
-  const tailOriginY = bubbleRect.top + bubbleRect.height;
-  const targetX = animalRect.left + animalRect.width / 2;
-  const targetY = animalRect.top + animalRect.height / 2;
-  const dx = targetX - tailOriginX;
-  const dy = targetY - tailOriginY;
-  const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
-  const distance = Math.hypot(dx, dy);
-  const newHeight = Math.min(Math.max(14, distance * 0.4), 70);
-  tail.style.height = newHeight + "px";
-  tail.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+  return `<img class="animalBubbleImg" src="images/thought-bubble.png" alt="Happy Birthday, Liam!" loading="eager">`;
 }
 
 function triggerPose(el, body, a, sharedBubble){
@@ -535,12 +441,6 @@ function triggerPose(el, body, a, sharedBubble){
   positionAnimalBubble(sharedBubble, rect);
   sharedBubble.classList.remove("hide");
   sharedBubble.classList.add("show");
-
-  requestAnimationFrame(()=>{
-    fitAnimalBubbleText(sharedBubble);
-    positionAnimalBubble(sharedBubble, rect);
-    pointBubbleTail(sharedBubble, rect);
-  });
 
   setTimeout(()=>{
     body.classList.remove("posing");
