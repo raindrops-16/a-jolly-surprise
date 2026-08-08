@@ -21,26 +21,26 @@ const CHARACTERS = [
 
   { key:"yukari", name:"Yukari", img:"yukari.png", color:"#9b5de5", icon:"🪄",
     font:"'Crafty Girls', cursive",
-    balloonFontSize:1.36,
-    balloonFontSizeMobile:1.2,
+    balloonFontSize:1.25,
+    balloonFontSizeMobile:1.1,
     msg:"Ta-da! Happy Birthday! 🎂 I've cast my special birthday spell just for you! May your year be full of happiness, good luck, and amazing adventures! Don't forget to save me a slice of cake, okay? Hehe! 💖🪄" },
 
   { key:"moka-inner", name:"Inner Moka", img:"Moka-inner.png", color:"#f389a9", icon:"🦷",
     iconFile:"moka-inner-icon.png", font:"'Comforter Brush', cursive",
-    balloonFontSize:1.55,
-    balloonFontSizeMobile:0.95,
+    balloonFontSize:1.4,
+    balloonFontSizeMobile:0.85,
     msg:"I don't usually say things like this... but I'm glad you're here today. Don't waste today worrying about the past. Celebrate, smile, and become even stronger. I hope this year brings you happiness worth remembering. I'll be expecting great things from you next year, too. Happy Birthday! <img class=\"inlineIcon\" src=\"images/icons/fangs-icon.png\" alt=\"🦷\" onerror=\"this.replaceWith(document.createTextNode('🦷'));\">" },
 
   { key:"kurumu", name:"Kurumu", img:"kurumu.png", color:"#df0747", icon:"🪽",
     iconFile:"wings-icon.png", font:"'Emilys Candy', cursive",
-    balloonFontSize:1.52,
-    balloonFontSizeMobile:1.09,
+    balloonFontSize:1.4,
+    balloonFontSizeMobile:0.98,
     msg:"Happy Birthday! I hope today is filled with lots of happiness, sweet surprises, and wonderful memories. You deserve to smile all day long! Hehe... I wish I could spend the whole day celebrating with you. Have an amazing birthday, okay? 💙" },
 
   { key:"jollibee", name:"Jollibee & Friends", img:"jollibee.png", color:"#ffb703", icon:"🐝",
     iconFile:"bee-icon.png", font:"'Indie Flower', cursive",
-    balloonFontSize:1.68,
-    balloonFontSizeMobile:1.16,
+    balloonFontSize:1.5,
+    balloonFontSizeMobile:1.04,
     msg:"Happy Birthday to you! We hope your day is filled with love, laughter, yummy food, and the people who make you smile. Wishing you a year full of happiness and exciting adventures. Have a Jolly Happy Birthday! 🎉🎂🎈" },
 
   { key:"hellokitty", name:"Hello Kitty & Friends", img:"kitty.png", color:"#2a9d8f", icon:"🎀",
@@ -57,14 +57,14 @@ const CHARACTERS = [
 
   { key:"moka-outer", name:"Outer Moka", img:"moka-outer.png", color:"#00b7c2", icon:"🌸",
     iconFile:"moka-outer-icon.png", font:"'Liu Jian Mao Cao', cursive",
-    balloonFontSize:1.27,
-    balloonFontSizeMobile:0.85,
+    balloonFontSize:1.1,
+    balloonFontSizeMobile:0.74,
     msg:"Happy Birthday! Yay! I'm so happy I get to celebrate this special day with you. May your heart always be filled with love, your dreams come true, and every day bring you something to smile about! Eat lots of delicious cake, have tons of fun, and remember that I'll always be cheering you on. Have an amazing birthday! 🌹💕😘" },
 
   { key:"bubu-dudu", name:"Bubu & Dudu", img:"bubu.png", color:"#ffffff", textColor:"#12204a", icon:"🧸",
     iconFile:"bear-icon.png", font:"'Sunshiney', cursive",
-    balloonFontSize:1.44,
-    balloonFontSizeMobile:1.06,
+    balloonFontSize:1.3,
+    balloonFontSizeMobile:0.95,
     msg:"Happy Birthday, our favorite human! Today is all about you! Eat lots of cake, make wonderful memories, laugh from your heart, and never forget how loved you are. We're giving you the biggest Bubu & Dudu bear hug ever! Have the happiest birthday! 🎂🎈🎁💕" },
 
   { key:"captain-ri-seri", name:"Captain Ri & Se-ri", img:"cloy.png", color:"#42d814", icon:"🪂",

@@ -42,7 +42,7 @@ const LAYOUT = LAYOUT_MOBILE;
 // above: x/y are the center of the title as a % of the screen. Edit
 // these numbers directly, OR use 🖐️ edit mode and drag the title —
 // dragging updates this value live and "Copy layout code" includes it.
-const TITLE_MOBILE = { x: 50, y: 54 };
+const TITLE_MOBILE = { x: 50, y: 52.5 };
 
 // Fallback only — every character in characters-data.js has its own
 // balloonFontSizeMobile now, this is just a safety net if one is missing.
@@ -53,9 +53,9 @@ const ANIMALS = [
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
   { id:"dog2", fallbackEmoji:"🐕", idleImg:"dog2-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:95, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
-  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:100, reverseFacing:false,
+  { id:"cat1", fallbackEmoji:"🐱", idleImg:"cat1-emoji.png", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:100, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" },
-  { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat-emoji.gif", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
+  { id:"cat2", fallbackEmoji:"🐈", idleImg:"cat2-emoji.png", walkImg:"cat-walk.gif", poseImg:"cat-pose.gif", width:115, reverseFacing:false,
     walkImgLeft:"cat-walkImgLeft.gif", walkImgRight:"cat-walkImgRight.gif" }
 ];
 
@@ -282,7 +282,7 @@ function openBalloon(c){
 
   const fontRem = c.balloonFontSizeMobile || MOBILE_BALLOON_FALLBACK_FONT_REM;
   msgEl.style.fontSize = fontRem + "rem";
-  msgEl.style.lineHeight = fontRem >= 1.1 ? "1.2" : "1.28";
+  msgEl.style.lineHeight = fontRem >= 1.1 ? "1.15" : "1.2";
 
   balloonOverlay().classList.add("show");
 }
