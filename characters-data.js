@@ -27,8 +27,8 @@ const CHARACTERS = [
 
   { key:"moka-inner", name:"Inner Moka", img:"Moka-inner.png", color:"#f389a9", icon:"🦷",
     iconFile:"moka-inner-icon.png", font:"'Comforter Brush', cursive",
-    balloonFontSize:1.5,
-    balloonFontSizeMobile:1.0,
+    balloonFontSize:1.6,
+    balloonFontSizeMobile:1.5,
     msg:"I don't usually say things like this... but I'm glad you're here today. Don't waste today worrying about the past. Celebrate, smile, and become even stronger. I hope this year brings you happiness worth remembering. I'll be expecting great things from you next year, too. Happy Birthday! <img class=\"inlineIcon\" src=\"images/icons/fangs-icon.png\" alt=\"🦷\" onerror=\"this.replaceWith(document.createTextNode('🦷'));\">" },
 
   { key:"kurumu", name:"Kurumu", img:"kurumu.png", color:"#df0747", icon:"🪽",
@@ -40,7 +40,7 @@ const CHARACTERS = [
   { key:"jollibee", name:"Jollibee & Friends", img:"jollibee.png", color:"#ffb703", icon:"🐝",
     iconFile:"bee-icon.png", font:"'Indie Flower', cursive",
     balloonFontSize:1.5,
-    balloonFontSizeMobile:1.2,
+    balloonFontSizeMobile:1.4,
     msg:"Happy Birthday to you! We hope your day is filled with love, laughter, yummy food, and the people who make you smile. Wishing you a year full of happiness and exciting adventures. Have a Jolly Happy Birthday! 🎉🎂🎈" },
 
   { key:"hellokitty", name:"Hello Kitty & Friends", img:"kitty.png", color:"#2a9d8f", icon:"🎀",
