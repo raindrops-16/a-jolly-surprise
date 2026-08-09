@@ -401,6 +401,7 @@ function animateWalk(el, body, a){
     const dur = Math.max(3000, Math.min(9000, (distance / SPEED_PX_PER_SEC) * 1000));
     let facing = target < curLeftPx ? -1 : 1;
     if(a.reverseFacing) facing *= -1;
+    el.dataset.facing = facing; // remembered for the thought-bubble direction on tap
 
     const usingDirectionalGif = (facing === -1 && a.walkImgLeft) || (facing === 1 && a.walkImgRight);
 
@@ -420,10 +421,7 @@ function animateWalk(el, body, a){
 }
 
 /* Positions the bubble centered on the animal, clamped so it never
-   renders off-screen for animals near the edges. Returns how far (and
-   which direction) it had to shift away from that ideal centered spot,
-   so the caller can pick a bubble graphic whose tail leans back toward
-   the animal instead of looking randomly disconnected from it. */
+   renders off-screen for animals near the edges. */
 function positionAnimalBubble(bubble, rect){
   const margin = 12;
   const bw = bubble.offsetWidth || 220;
@@ -435,24 +433,21 @@ function positionAnimalBubble(bubble, rect){
   const top = Math.max(margin + bh, rect.top - 8);
   bubble.style.left = clampedLeft + "px";
   bubble.style.top = top + "px";
-  return clampedLeft - idealLeft; // 0 = no shift, >0 = pushed right, <0 = pushed left
 }
 
 /* The bubble is just an image — "Happy Birthday, Liam!" is baked into
-   the artwork itself, so there's no text to build or fit here.
-   thought-bubble.png is the default (used when the bubble sits right
-   over the animal, no edge-clamping needed). When the animal is near a
-   screen edge and the bubble has to shift away to stay on-screen,
-   thought-bubble-left.png / thought-bubble-right.png (tail trailing
-   toward that side) are used instead so it still visually points back
-   at whichever animal opened it, rather than looking adrift on its own. */
-const BUBBLE_SHIFT_THRESHOLD = 15; // px — below this, not worth swapping graphics
-function buildAnimalBubbleHTML(shiftPx){
-  let src = "images/thought-bubble.png";
-  if(shiftPx > BUBBLE_SHIFT_THRESHOLD) src = "images/thought-bubble-left.png";   // bubble pushed right → animal is to its left
-  else if(shiftPx < -BUBBLE_SHIFT_THRESHOLD) src = "images/thought-bubble-right.png"; // bubble pushed left → animal is to its right
+   the artwork itself, no text is ever overlaid or shown as a fallback.
+   Which graphic to use is based on which way the animal is currently
+   facing (facing 1 = walking/facing right, -1 = left), tracked via
+   el.dataset.facing in animateWalk: an animal facing right uses
+   thought-bubble-left.png (tail trailing back over its shoulder), and
+   one facing left uses thought-bubble-right.png. If a specific variant
+   is missing, this falls back to the plain thought-bubble.png — never
+   to text. */
+function buildAnimalBubbleHTML(facing){
+  const src = facing === -1 ? "images/thought-bubble-right.png" : "images/thought-bubble-left.png";
   return `<img class="animalBubbleImg" src="${src}" alt="Happy Birthday, Liam!" loading="eager" ` +
-    `onerror="this.src='images/thought-bubble.png'; this.onerror=function(){ this.replaceWith(Object.assign(document.createElement('div'),{className:'animalBubbleFallback',textContent:'Happy Birthday, Liam! 🎂'})); };">`;
+    `onerror="this.onerror=null; this.src='images/thought-bubble.png';">`;
 }
 
 function triggerPose(el, body, a, sharedBubble){
@@ -468,13 +463,10 @@ function triggerPose(el, body, a, sharedBubble){
   body.classList.add("posing");
   setAnimalMode(body, a, "pose");
 
-  // The bubble's width comes from CSS (clamp(...) on #animalBubble), not
-  // from whatever image happens to be inside it, so it can be measured
-  // and positioned BEFORE picking/setting the actual graphic — no risk
-  // of a wrong-variant flash while the "real" one loads in.
   const rect = body.getBoundingClientRect();
-  const shiftPx = positionAnimalBubble(sharedBubble, rect);
-  sharedBubble.innerHTML = buildAnimalBubbleHTML(shiftPx);
+  const facing = parseInt(el.dataset.facing || "1", 10);
+  sharedBubble.innerHTML = buildAnimalBubbleHTML(facing);
+  positionAnimalBubble(sharedBubble, rect);
   sharedBubble.classList.remove("hide");
   sharedBubble.classList.add("show");
 
@@ -492,6 +484,7 @@ function buildAnimals(){
   ANIMALS.forEach((a, i)=>{
     const el = document.createElement("div");
     el.className = "animal";
+    el.dataset.facing = "1";
     el.style.left = (10 + i * 22) + "%";
     el.innerHTML = `<div class="animalBody"><img alt="${a.fallbackEmoji}"></div>`;
     grass.appendChild(el);

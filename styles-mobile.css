@@ -349,6 +349,7 @@ html,body{
   transform:translate(-50%,-100%) scale(0.9);
   transform-origin:bottom center;
   width:clamp(220px, 58vw, 320px);
+  min-height:90px;
   opacity:0;
   visibility:hidden;
   transition:transform .25s cubic-bezier(.34,1.56,.64,1), opacity .25s ease, visibility 0s linear .25s;
