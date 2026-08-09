@@ -304,11 +304,40 @@ function dropPaws(el, duration){
   }
 }
 
-/* The bubble is just the thought-bubble.png image — "Happy Birthday,
-   Liam!" is baked into that image already, so there's nothing to build
-   dynamically here anymore. */
-function buildAnimalBubbleHTML(){
-  return `<img class="animalBubbleImg" src="images/thought-bubble.png" alt="Happy Birthday, Liam!" loading="eager">`;
+/* Positions the bubble centered on the animal, clamped so it never
+   renders off-screen for animals near the edges. Returns how far (and
+   which direction) it had to shift away from that ideal centered spot,
+   so the caller can pick a bubble graphic whose tail leans back toward
+   the animal instead of looking randomly disconnected from it. */
+function positionAnimalBubble(bubble, rect){
+  const margin = 12;
+  const bw = bubble.offsetWidth || 300;
+  const bh = bubble.offsetHeight || 200;
+  const idealLeft = rect.left + rect.width / 2;
+  const minLeft = margin + bw / 2;
+  const maxLeft = window.innerWidth - margin - bw / 2;
+  const clampedLeft = Math.min(maxLeft, Math.max(minLeft, idealLeft));
+  const top = Math.max(margin + bh, rect.top - 8);
+  bubble.style.left = clampedLeft + "px";
+  bubble.style.top = top + "px";
+  return clampedLeft - idealLeft; // 0 = no shift, >0 = pushed right, <0 = pushed left
+}
+
+/* The bubble is just an image — "Happy Birthday, Liam!" is baked into
+   the artwork itself, so there's no text to build or fit here.
+   thought-bubble.png is the default (used when the bubble sits right
+   over the animal, no edge-clamping needed). When the animal is near a
+   screen edge and the bubble has to shift away to stay on-screen,
+   thought-bubble-left.png / thought-bubble-right.png (tail trailing
+   toward that side) are used instead so it still visually points back
+   at whichever animal opened it, rather than looking adrift on its own. */
+const BUBBLE_SHIFT_THRESHOLD = 15; // px — below this, not worth swapping graphics
+function buildAnimalBubbleHTML(shiftPx){
+  let src = "images/thought-bubble.png";
+  if(shiftPx > BUBBLE_SHIFT_THRESHOLD) src = "images/thought-bubble-left.png";   // bubble pushed right → animal is to its left
+  else if(shiftPx < -BUBBLE_SHIFT_THRESHOLD) src = "images/thought-bubble-right.png"; // bubble pushed left → animal is to its right
+  return `<img class="animalBubbleImg" src="${src}" alt="Happy Birthday, Liam!" loading="eager" ` +
+    `onerror="this.src='images/thought-bubble.png'; this.onerror=function(){ this.replaceWith(Object.assign(document.createElement('div'),{className:'animalBubbleFallback',textContent:'Happy Birthday, Liam! 🎂'})); };">`;
 }
 
 function animateWalk(el, body, a){
@@ -369,10 +398,9 @@ function buildAnimals(){
       body.classList.add("posing");
       setAnimalMode(body, a, "pose");
 
-      sharedBubble.innerHTML = buildAnimalBubbleHTML();
       const rect = body.getBoundingClientRect();
-      sharedBubble.style.left = (rect.left + rect.width / 2) + "px";
-      sharedBubble.style.top = (rect.top - 8) + "px";
+      const shiftPx = positionAnimalBubble(sharedBubble, rect);
+      sharedBubble.innerHTML = buildAnimalBubbleHTML(shiftPx);
       sharedBubble.classList.remove("hide");
       sharedBubble.classList.add("show");
 
