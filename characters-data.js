@@ -82,7 +82,8 @@ const CHARACTERS = [
 
 const CHAR_BY_KEY = Object.fromEntries(CHARACTERS.map(c => [c.key, c]));
 
-/* The animal thought-bubble is just images/thought-bubble.png shown as-is —
+/* The animal thought-bubble is images/thought-bubble-left.png or
+   thought-bubble-right.png, picked by which way the animal is facing —
    the "Happy Birthday, Liam!" message is baked into that image itself, so
    there's no text/icon to overlay dynamically here anymore. */
 

@@ -279,9 +279,10 @@ html,body{
   animation:pawFade 8s ease-out forwards;}
 @keyframes pawFade{0%{opacity:1;}75%{opacity:.6;}100%{opacity:0;}}
 
-/* The animal thought-bubble is just images/thought-bubble.png shown at
-   this size — the message and its own tail are baked into that image,
-   so there's no separate text/icon/tail styling needed here anymore. */
+/* The animal thought-bubble is images/thought-bubble-left.png or
+   thought-bubble-right.png (picked by facing direction in script.js) —
+   this size — the message and each variant's own tail are baked into
+   that artwork, so there's no separate text/icon/tail styling needed here. */
 #animalBubble{
   position:fixed;z-index:55;
   transform:translate(-50%,-100%) scale(0.9);

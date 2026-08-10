@@ -420,13 +420,17 @@ function animateWalk(el, body, a){
   step();
 }
 
-/* Positions the bubble centered on the animal, clamped so it never
-   renders off-screen for animals near the edges. */
-function positionAnimalBubble(bubble, rect){
+/* Positions the bubble AHEAD of the animal in whichever direction it's
+   facing (not centered on top of it) — a cat walking right gets its
+   bubble out in front to the right, not straddling/behind where it's
+   already passed. Still clamped so it never renders off-screen. */
+function positionAnimalBubble(bubble, rect, facing){
   const margin = 12;
   const bw = bubble.offsetWidth || 220;
   const bh = bubble.offsetHeight || 140;
-  const idealLeft = rect.left + rect.width / 2;
+  const aheadOffset = rect.width * 0.85;
+  const animalCenter = rect.left + rect.width / 2;
+  const idealLeft = facing === -1 ? animalCenter - aheadOffset : animalCenter + aheadOffset;
   const minLeft = margin + bw / 2;
   const maxLeft = window.innerWidth - margin - bw / 2;
   const clampedLeft = Math.min(maxLeft, Math.max(minLeft, idealLeft));
@@ -439,15 +443,17 @@ function positionAnimalBubble(bubble, rect){
    the artwork itself, no text is ever overlaid or shown as a fallback.
    Which graphic to use is based on which way the animal is currently
    facing (facing 1 = walking/facing right, -1 = left), tracked via
-   el.dataset.facing in animateWalk: an animal facing right uses
-   thought-bubble-left.png (tail trailing back over its shoulder), and
-   one facing left uses thought-bubble-right.png. If a specific variant
-   is missing, this falls back to the plain thought-bubble.png — never
-   to text. */
+   el.dataset.facing in animateWalk: an animal facing right gets the
+   bubble positioned ahead to its right, using thought-bubble-left.png
+   (tail trailing back-left toward the animal); one facing left gets
+   thought-bubble-right.png positioned ahead to its left. There is no
+   plain/default thought-bubble.png anymore — if one variant fails to
+   load, this falls back to the other rather than to any text. */
 function buildAnimalBubbleHTML(facing){
   const src = facing === -1 ? "images/thought-bubble-right.png" : "images/thought-bubble-left.png";
+  const fallbackSrc = facing === -1 ? "images/thought-bubble-left.png" : "images/thought-bubble-right.png";
   return `<img class="animalBubbleImg" src="${src}" alt="Happy Birthday, Liam!" loading="eager" ` +
-    `onerror="this.onerror=null; this.src='images/thought-bubble.png';">`;
+    `onerror="this.onerror=null; this.src='${fallbackSrc}';">`;
 }
 
 function triggerPose(el, body, a, sharedBubble){
@@ -466,7 +472,7 @@ function triggerPose(el, body, a, sharedBubble){
   const rect = body.getBoundingClientRect();
   const facing = parseInt(el.dataset.facing || "1", 10);
   sharedBubble.innerHTML = buildAnimalBubbleHTML(facing);
-  positionAnimalBubble(sharedBubble, rect);
+  positionAnimalBubble(sharedBubble, rect, facing);
   sharedBubble.classList.remove("hide");
   sharedBubble.classList.add("show");
 
