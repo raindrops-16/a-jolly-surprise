@@ -163,7 +163,7 @@ html,body{
   width:min(78vw, 420px);
   aspect-ratio:900/530;
   margin:0;
-  background-image:url('hb-title-mobile.png');
+  background-image:url('images/hb-title-mobile.png');
   background-size:contain;
   background-repeat:no-repeat;
   background-position:center;

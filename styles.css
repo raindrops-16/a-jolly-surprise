@@ -150,9 +150,9 @@ html,body{
 #hbTitle{
   position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
   width:min(70vw, 700px);
-  aspect-ratio:1600/302;
+  aspect-ratio:1264/558;
   margin:0;
-  background-image:url('hb-title-desktop.png');
+  background-image:url('images/hb-title-desktop.png');
   background-size:contain;
   background-repeat:no-repeat;
   background-position:center;
