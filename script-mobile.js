@@ -26,10 +26,10 @@ const MUSIC_FILE = "birthday-ost.mp3";
 const LAYOUT_MOBILE = {
   "yukari": { x: 80.5, y: 22.5, width: 309, z: 22 },
   "kurumu": { x: 18.5, y: 21.0, width: 278, z: 23 },
-  "mizore": { x: 62.9, y: 28.2, width: 257, z: 24 },
-  "tsukune": { x: 40.0, y: 26.7, width: 240, z: 25 },
-  "moka-inner": { x: 17.9, y: 50.8, width: 363, z: 26 },
-  "moka-outer": { x: 81.7, y: 50.2, width: 220, z: 23 },
+  "mizore": { x: 62.3, y: 25.1, width: 257, z: 24 },
+  "tsukune": { x: 41.6, y: 24.6, width: 240, z: 25 },
+  "moka-inner": { x: 13.4, y: 51.3, width: 363, z: 26 },
+  "moka-outer": { x: 85.0, y: 51.1, width: 229, z: 23 },
   "winnie-pooh": { x: 81.8, y: 82.5, width: 235, z: 46 },
   "bubu-dudu": { x: 69.9, y: 69.5, width: 284, z: 50 },
   "hellokitty": { x: 51.5, y: 83.3, width: 346, z: 43 },
@@ -38,11 +38,13 @@ const LAYOUT_MOBILE = {
 };
 const LAYOUT = LAYOUT_MOBILE;
 
-// Position of the "Happy Birthday!" title, same idea as LAYOUT_MOBILE
-// above: x/y are the center of the title as a % of the screen. Edit
-// these numbers directly, OR use 🖐️ edit mode and drag the title —
-// dragging updates this value live and "Copy layout code" includes it.
-const TITLE_MOBILE = { x: 50, y: 52.5 };
+// Position AND size of the "Happy Birthday!" title, same idea as
+// LAYOUT_MOBILE above: x/y are the center as a % of the screen, width is
+// in px (same reference scale as character widths). Edit these numbers
+// directly, OR use 🖐️ edit mode — the title can now be both dragged AND
+// scroll-resized just like a character, and "Copy layout code" includes
+// its current position + size.
+const TITLE_MOBILE = { x: 53.5, y: 50.3, width: 340 };
 
 // Fallback only — every character in characters-data.js has its own
 // balloonFontSizeMobile now, this is just a safety net if one is missing.
@@ -120,18 +122,19 @@ ${lines.join("\n")}
 };
 
 // Replace the existing "const TITLE_MOBILE = {...}" line with this one.
-const TITLE_MOBILE = { x: ${TITLE_MOBILE.x.toFixed(1)}, y: ${TITLE_MOBILE.y.toFixed(1)} };`;
+const TITLE_MOBILE = { x: ${TITLE_MOBILE.x.toFixed(1)}, y: ${TITLE_MOBILE.y.toFixed(1)}, width: ${Math.round(TITLE_MOBILE.width)} };`;
 }
 
-/* ---------- draggable "Happy Birthday!" title (edit mode only) ----------
-   Applies TITLE_MOBILE on load. Dragging in edit mode updates that same
-   object live and refreshes the copyable code in the Layout Editor panel
-   — same pattern as the characters, so there's one consistent place
-   (script-mobile.js) to find and hand-edit every coordinate on the site. */
+/* ---------- draggable + resizable "Happy Birthday!" title (edit mode only) ----------
+   Applies TITLE_MOBILE on load. In edit mode: drag to move, scroll/wheel
+   to resize — same pattern as the characters, so there's one consistent
+   place (script-mobile.js) to find and hand-edit every coordinate and
+   size on the site. */
 function applyTitlePosition(){
   const title = document.getElementById("hbTitle");
   title.style.left = TITLE_MOBILE.x + "%";
   title.style.top = TITLE_MOBILE.y + "%";
+  title.style.width = `calc(var(--ui-scale) * ${TITLE_MOBILE.width}px)`;
 }
 
 function initDraggableTitle(){
@@ -159,6 +162,14 @@ function initDraggableTitle(){
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
   });
+
+  title.addEventListener("wheel", e=>{
+    if(!editMode) return;
+    e.preventDefault();
+    TITLE_MOBILE.width = Math.max(120, TITLE_MOBILE.width + (e.deltaY < 0 ? 10 : -10));
+    title.style.width = `calc(var(--ui-scale) * ${TITLE_MOBILE.width}px)`;
+    refreshLayoutOutput();
+  }, { passive:false });
 }
 
 function applyPosition(card, pos){

@@ -156,14 +156,50 @@ html,body{
   background-size:contain;
   background-repeat:no-repeat;
   background-position:center;
-  text-indent:-9999px;overflow:hidden; /* keeps "Happy Birthday!" text for screen readers, hidden visually */
-  filter:drop-shadow(0 0 22px #ff2d2d66);
+  text-indent:-9999px; /* keeps "Happy Birthday!" text for screen readers, hidden visually */
+  filter:drop-shadow(0 0 26px #ff2d2d88) drop-shadow(0 0 50px #ff2d2d44);
   animation:hbPulse 2.6s ease-in-out infinite;
   z-index:50;pointer-events:none;
 }
 @keyframes hbPulse{
-  0%,100%{transform:translate(-50%,-50%) scale(1); filter:drop-shadow(0 0 22px #ff2d2d66);}
-  50%{transform:translate(-50%,-50%) scale(1.06); filter:drop-shadow(0 0 34px #ff2d2d99);}
+  0%,100%{transform:translate(-50%,-50%) scale(1); filter:drop-shadow(0 0 26px #ff2d2d88) drop-shadow(0 0 50px #ff2d2d44);}
+  50%{transform:translate(-50%,-50%) scale(1.06); filter:drop-shadow(0 0 38px #ff2d2dbb) drop-shadow(0 0 70px #ff2d2d66);}
+}
+
+/* A couple of mini "sandwich cookie" decorations (generic round cookie
+   shape — dark wafer, cream-colored center — not any specific branded
+   design) drifting and spinning gently near the title, each with a
+   soft golden glow of its own. Desktop only. */
+#hbTitle::before,
+#hbTitle::after{
+  content:"";
+  position:absolute;
+  width:38px;height:38px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at center, #f3e3c0 0 36%, transparent 37%),
+    radial-gradient(circle at 30% 30%, #4a3327, #2a1c14 70%);
+  box-shadow:
+    0 0 4px 1px rgba(0,0,0,.4),
+    0 0 14px 4px rgba(255,214,140,.55);
+  z-index:51;
+}
+#hbTitle::before{
+  top:-6%;left:-6%;
+  animation:cookieFloatA 4.2s ease-in-out infinite;
+}
+#hbTitle::after{
+  bottom:-4%;right:-4%;
+  width:28px;height:28px;
+  animation:cookieFloatB 3.6s ease-in-out infinite;
+}
+@keyframes cookieFloatA{
+  0%,100%{ transform:translateY(0) rotate(0deg); }
+  50%{ transform:translateY(-14px) rotate(200deg); }
+}
+@keyframes cookieFloatB{
+  0%,100%{ transform:translateY(0) rotate(0deg); }
+  50%{ transform:translateY(12px) rotate(-220deg); }
 }
 
 #charLayer{
