@@ -160,36 +160,20 @@ html,body{
   position:fixed;
   left:50%;top:54%;
   transform:translate(-50%,-50%);
-  font-family:'Allura',cursive;
-  font-weight:400;
-  font-size:clamp(2.1rem,min(11vw,9.5vh),3.8rem);
-  margin:0;text-align:center;white-space:normal;width:74%;line-height:1.25;
-  background:linear-gradient(90deg,#ff2d2d,#ffffff,#ff2d2d);
-  background-size:300% 100%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 2px 3px rgba(120,0,0,.55)) drop-shadow(0 0 16px #ff2d2d55);
-  animation:hbGradient 5s linear infinite, hbPulse 2.6s ease-in-out infinite;
+  width:min(78vw, 420px);
+  aspect-ratio:900/530;
+  margin:0;
+  background-image:url('hb-title-mobile.png');
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+  text-indent:-9999px;overflow:hidden; /* keeps "Happy Birthday!" text for screen readers, hidden visually */
+  filter:drop-shadow(0 0 18px #ff2d2d66);
+  animation:hbPulse 2.6s ease-in-out infinite;
   z-index:50;
   pointer-events:none;
   touch-action:none;
   user-select:none;
-}
-/* A simple, generic curved underline for a bit of festive flourish under
-   the script — deliberately plain (no flag/tail, no double curve) so it
-   doesn't resemble Coca-Cola's specific "Dynamic Ribbon Device" mark. */
-#hbTitle::after{
-  content:"";
-  display:block;
-  width:min(55%, 220px);
-  height:14px;
-  margin:.05em auto 0;
-  border-radius:50%;
-  border:3px solid #ff2d2d;
-  border-top-color:transparent;
-  border-left-color:transparent;
-  border-right-color:transparent;
-  box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
-  opacity:.9;
 }
 #hbTitle.editable{
   pointer-events:auto;
@@ -199,8 +183,10 @@ html,body{
   border-radius:16px;
 }
 #hbTitle.dragging{ cursor:grabbing; animation-play-state:paused; }
-@keyframes hbGradient{0%{background-position:0% 50%;}100%{background-position:300% 50%;}}
-@keyframes hbPulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.08);}}
+@keyframes hbPulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1); filter:drop-shadow(0 0 18px #ff2d2d66);}
+  50%{transform:translate(-50%,-50%) scale(1.06); filter:drop-shadow(0 0 28px #ff2d2d99);}
+}
 
 #charLayer{
   position:absolute;inset:0;z-index:9;pointer-events:none;
