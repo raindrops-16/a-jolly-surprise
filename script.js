@@ -22,6 +22,14 @@ const LAYOUT_DESKTOP = {
 };
 const LAYOUT = LAYOUT_DESKTOP;
 
+// Placeholder slot for a future decoration (e.g. "moon" image) — position
+// and size are fully manual, same idea as the characters: x/y are the
+// center as a % of the screen, width in px (same --ui-scale reference as
+// character widths). Once images/moon.png exists, use 🖐️ edit mode to
+// drag it into place and drag its handle to resize, then "Copy layout
+// code" to lock in the final numbers here.
+const MOON_DESKTOP = { x: 85, y: 15, width: 140 };
+
 const ANIMALS = [
   { id:"dog1", fallbackEmoji:"🐶", idleImg:"dog1-emoji.png", walkImg:"dog-walk.gif", poseImg:"dogpose.gif", width:110, reverseFacing:false,
     walkImgLeft:"dog-walkImgLeft.gif", walkImgRight:"dog-walkImgRight.gif" },
@@ -61,6 +69,7 @@ document.getElementById("editModeBtn").addEventListener("click", ()=>{
   panel.classList.toggle("show", editMode);
   if(editMode) panel.classList.remove("collapsed");
   document.querySelectorAll(".charCard").forEach(c => c.classList.toggle("editable", editMode));
+  document.getElementById("moonDecor").classList.toggle("editable", editMode);
   refreshLayoutOutput();
 });
 
@@ -90,7 +99,10 @@ function refreshLayoutOutput(){
 // in script.js with these lines.
 const LAYOUT_DESKTOP = {
 ${lines.join("\n")}
-};`;
+};
+
+// Replace the existing "const MOON_DESKTOP = {...}" line with this one.
+const MOON_DESKTOP = { x: ${MOON_DESKTOP.x.toFixed(1)}, y: ${MOON_DESKTOP.y.toFixed(1)}, width: ${Math.round(MOON_DESKTOP.width)} };`;
 }
 
 function applyPosition(card, pos){
@@ -530,6 +542,81 @@ function initShootingStars(){
   setInterval(spawnShootingStar, 25000);
 }
 
+/* ---------- draggable + resizable "moon" decoration slot ----------
+   Same interaction pattern as characters: drag the image to move it,
+   drag its little handle to resize it. Works right now even without
+   images/moon.png existing yet — the <img> just stays invisible
+   (onerror hides it in the HTML) until that file is added, but its
+   position/size are still fully editable and saved via "Copy layout
+   code" in the meantime. */
+function positionMoonResizeHandle(){
+  const moon = document.getElementById("moonDecor");
+  const handle = document.getElementById("moonResizeHandle");
+  const rect = moon.getBoundingClientRect();
+  handle.style.left = (rect.right - 8) + "px";
+  handle.style.top = (rect.bottom - 8) + "px";
+}
+
+function applyMoonPosition(){
+  const moon = document.getElementById("moonDecor");
+  moon.style.left = MOON_DESKTOP.x + "%";
+  moon.style.top = MOON_DESKTOP.y + "%";
+  moon.style.width = `calc(var(--ui-scale) * ${MOON_DESKTOP.width}px)`;
+  positionMoonResizeHandle();
+}
+
+function initMoonEditing(){
+  const moon = document.getElementById("moonDecor");
+  const handle = document.getElementById("moonResizeHandle");
+  applyMoonPosition();
+
+  moon.addEventListener("pointerdown", e=>{
+    if(!editMode) return;
+    e.preventDefault();
+    moon.classList.add("dragging");
+    const onMove = ev=>{
+      const x = Math.max(0, Math.min(100, (ev.clientX / window.innerWidth) * 100));
+      const y = Math.max(0, Math.min(100, (ev.clientY / window.innerHeight) * 100));
+      MOON_DESKTOP.x = x;
+      MOON_DESKTOP.y = y;
+      moon.style.left = x + "%";
+      moon.style.top = y + "%";
+      positionMoonResizeHandle();
+    };
+    const onUp = ()=>{
+      moon.classList.remove("dragging");
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      refreshLayoutOutput();
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  });
+
+  handle.addEventListener("pointerdown", e=>{
+    if(!editMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startWidth = MOON_DESKTOP.width;
+    const onMove = ev=>{
+      const delta = (ev.clientX - startX) * 0.4;
+      MOON_DESKTOP.width = Math.max(30, startWidth + delta);
+      moon.style.width = `calc(var(--ui-scale) * ${MOON_DESKTOP.width}px)`;
+      positionMoonResizeHandle();
+      refreshLayoutOutput();
+    };
+    const onUp = ()=>{
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  });
+
+  window.addEventListener("resize", positionMoonResizeHandle);
+}
+
 function initSite(){
   buildCharacters();
   buildAnimals();
@@ -540,5 +627,6 @@ function initSite(){
   initMusic();
   attemptAutoplay();
   initShootingStars();
+  initMoonEditing();
   refreshLayoutOutput();
 }

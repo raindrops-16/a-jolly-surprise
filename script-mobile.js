@@ -139,10 +139,11 @@ function applyTitlePosition(){
 
 function initDraggableTitle(){
   const title = document.getElementById("hbTitle");
+  const resizeHandle = document.getElementById("titleResizeHandle");
   applyTitlePosition();
 
   title.addEventListener("pointerdown", e=>{
-    if(!editMode) return;
+    if(!editMode || e.target === resizeHandle) return;
     e.preventDefault();
     title.classList.add("dragging");
     const onMove = ev=>{
@@ -163,13 +164,30 @@ function initDraggableTitle(){
     document.addEventListener("pointerup", onUp);
   });
 
-  title.addEventListener("wheel", e=>{
+  // Touch-friendly resize handle — "wheel" (mouse scroll) doesn't exist
+  // as a gesture on a touchscreen, which is why resizing wasn't working
+  // on mobile before. Drag this handle instead, same as characters.
+  resizeHandle.addEventListener("pointerdown", e=>{
     if(!editMode) return;
     e.preventDefault();
-    TITLE_MOBILE.width = Math.max(120, TITLE_MOBILE.width + (e.deltaY < 0 ? 10 : -10));
-    title.style.width = `calc(var(--ui-scale) * ${TITLE_MOBILE.width}px)`;
-    refreshLayoutOutput();
-  }, { passive:false });
+    e.stopPropagation();
+    title.classList.add("dragging");
+    const startX = e.clientX;
+    const startWidth = TITLE_MOBILE.width;
+    const onMove = ev=>{
+      const delta = (ev.clientX - startX) * 0.5;
+      TITLE_MOBILE.width = Math.max(120, startWidth + delta);
+      title.style.width = `calc(var(--ui-scale) * ${TITLE_MOBILE.width}px)`;
+      refreshLayoutOutput();
+    };
+    const onUp = ()=>{
+      title.classList.remove("dragging");
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  });
 }
 
 function applyPosition(card, pos){

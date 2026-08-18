@@ -147,6 +147,39 @@ html,body{
 #copyLayoutBtn{margin-top:.4rem;width:100%;padding:.5rem;border:none;border-radius:8px;
   background:#ff5fa2;color:#fff;font-weight:700;cursor:pointer;}
 
+/* ============ MOON DECORATION (placeholder slot) ============
+   Empty/invisible until images/moon.png exists (the onerror handler in
+   the HTML hides it), but fully positionable right now via 🖐️ edit
+   mode — same drag-to-move + drag-handle-to-resize pattern as the
+   characters. */
+#moonDecor{
+  position:fixed;
+  transform:translate(-50%,-50%);
+  z-index:4;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+#moonDecor.editable{
+  pointer-events:auto;
+  cursor:grab;
+  outline:2px dashed #ffffff88;
+  outline-offset:6px;
+  border-radius:50%;
+}
+#moonDecor.dragging{ cursor:grabbing; }
+#moonResizeHandle{
+  position:fixed;
+  display:none;
+  align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;
+  background:#ff5fa2;color:#fff;font-size:13px;font-weight:800;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  cursor:ns-resize;
+  z-index:9999;
+}
+#moonDecor.editable ~ #moonResizeHandle{ display:flex; }
+
 #hbTitle{
   position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
   width:min(70vw, 700px);
@@ -164,42 +197,6 @@ html,body{
 @keyframes hbPulse{
   0%,100%{transform:translate(-50%,-50%) scale(1); filter:drop-shadow(0 0 26px #ff2d2d88) drop-shadow(0 0 50px #ff2d2d44);}
   50%{transform:translate(-50%,-50%) scale(1.06); filter:drop-shadow(0 0 38px #ff2d2dbb) drop-shadow(0 0 70px #ff2d2d66);}
-}
-
-/* A couple of mini "sandwich cookie" decorations (generic round cookie
-   shape — dark wafer, cream-colored center — not any specific branded
-   design) drifting and spinning gently near the title, each with a
-   soft golden glow of its own. Desktop only. */
-#hbTitle::before,
-#hbTitle::after{
-  content:"";
-  position:absolute;
-  width:38px;height:38px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at center, #f3e3c0 0 36%, transparent 37%),
-    radial-gradient(circle at 30% 30%, #4a3327, #2a1c14 70%);
-  box-shadow:
-    0 0 4px 1px rgba(0,0,0,.4),
-    0 0 14px 4px rgba(255,214,140,.55);
-  z-index:51;
-}
-#hbTitle::before{
-  top:-6%;left:-6%;
-  animation:cookieFloatA 4.2s ease-in-out infinite;
-}
-#hbTitle::after{
-  bottom:-4%;right:-4%;
-  width:28px;height:28px;
-  animation:cookieFloatB 3.6s ease-in-out infinite;
-}
-@keyframes cookieFloatA{
-  0%,100%{ transform:translateY(0) rotate(0deg); }
-  50%{ transform:translateY(-14px) rotate(200deg); }
-}
-@keyframes cookieFloatB{
-  0%,100%{ transform:translateY(0) rotate(0deg); }
-  50%{ transform:translateY(12px) rotate(-220deg); }
 }
 
 #charLayer{

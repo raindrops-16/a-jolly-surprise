@@ -31,7 +31,10 @@
     <button id="editModeBtn" title="Toggle position-editing mode">🖐️</button>
     <audio id="bgMusic" loop preload="none"></audio>
 
-    <h1 id="hbTitle">Happy Birthday!</h1>
+    <h1 id="hbTitle">Happy Birthday!<span class="resizeHandle" id="titleResizeHandle" aria-hidden="true">↕</span></h1>
+    <img id="moonDecor" src="images/moon.png" alt="" aria-hidden="true"
+         onerror="this.style.display='none'">
+    <div class="resizeHandle" id="moonResizeHandle" aria-hidden="true">↕</div>
 
     <div id="charLayer"></div>
 

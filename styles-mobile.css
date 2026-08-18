@@ -156,6 +156,9 @@ html,body{
    Default position is a bit higher than dead-center (per request).
    In edit mode (🖐️ button) it becomes draggable — tap-drag it anywhere
    and script-mobile.js remembers where you put it for next time. */
+/* Moon decoration is a desktop-only feature — not shown on mobile. */
+#moonDecor, #moonResizeHandle{ display:none !important; }
+
 #hbTitle{
   position:fixed;
   left:50%;top:54%;
@@ -167,8 +170,8 @@ html,body{
   background-size:contain;
   background-repeat:no-repeat;
   background-position:center;
-  text-indent:-9999px;overflow:hidden; /* keeps "Happy Birthday!" text for screen readers, hidden visually */
-  filter:drop-shadow(0 0 18px #ff2d2d66);
+  text-indent:-9999px;overflow:visible; /* keeps "Happy Birthday!" text for screen readers, hidden visually */
+  filter:drop-shadow(0 0 22px #ff2d2d88) drop-shadow(0 0 42px #ff2d2d44);
   animation:hbPulse 2.6s ease-in-out infinite;
   z-index:50;
   pointer-events:none;
@@ -183,9 +186,25 @@ html,body{
   border-radius:16px;
 }
 #hbTitle.dragging{ cursor:grabbing; animation-play-state:paused; }
+#hbTitle .resizeHandle{
+  position:absolute;
+  right:-12px;bottom:-12px;
+  text-indent:0; /* undo the parent's -9999px so the ↕ icon is actually visible */
+  display:none;
+  align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;
+  background:#ff5fa2;color:#fff;font-size:14px;font-weight:800;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  cursor:ns-resize;
+  pointer-events:none;
+}
+#hbTitle.editable .resizeHandle{
+  display:flex;
+  pointer-events:auto;
+}
 @keyframes hbPulse{
-  0%,100%{transform:translate(-50%,-50%) scale(1); filter:drop-shadow(0 0 18px #ff2d2d66);}
-  50%{transform:translate(-50%,-50%) scale(1.06); filter:drop-shadow(0 0 28px #ff2d2d99);}
+  0%,100%{transform:translate(-50%,-50%) scale(1); filter:drop-shadow(0 0 22px #ff2d2d88) drop-shadow(0 0 42px #ff2d2d44);}
+  50%{transform:translate(-50%,-50%) scale(1.06); filter:drop-shadow(0 0 32px #ff2d2dbb) drop-shadow(0 0 58px #ff2d2d66);}
 }
 
 #charLayer{
