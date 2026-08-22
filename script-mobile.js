@@ -126,15 +126,31 @@ const TITLE_MOBILE = { x: ${TITLE_MOBILE.x.toFixed(1)}, y: ${TITLE_MOBILE.y.toFi
 }
 
 /* ---------- draggable + resizable "Happy Birthday!" title (edit mode only) ----------
-   Applies TITLE_MOBILE on load. In edit mode: drag to move, scroll/wheel
-   to resize — same pattern as the characters, so there's one consistent
-   place (script-mobile.js) to find and hand-edit every coordinate and
-   size on the site. */
+   Applies TITLE_MOBILE on load. In edit mode: drag to move, drag the
+   handle to resize — same pattern as the characters/moon, so there's one
+   consistent place (script-mobile.js) to find and hand-edit every
+   coordinate and size on the site.
+
+   The handle is a separate fixed-position element (not nested inside
+   #hbTitle) tracked via getBoundingClientRect(), same approach as the
+   moon's handle on desktop — nesting it inside the title trapped it in
+   the title's own stacking context, so no z-index on the handle could
+   ever beat sibling UI like the Layout Editor panel, which was silently
+   eating every tap on it. */
+function positionTitleResizeHandle(){
+  const title = document.getElementById("hbTitle");
+  const handle = document.getElementById("titleResizeHandle");
+  const rect = title.getBoundingClientRect();
+  handle.style.left = (rect.right - 12) + "px";
+  handle.style.top = (rect.bottom - 12) + "px";
+}
+
 function applyTitlePosition(){
   const title = document.getElementById("hbTitle");
   title.style.left = TITLE_MOBILE.x + "%";
   title.style.top = TITLE_MOBILE.y + "%";
   title.style.width = `calc(var(--ui-scale) * ${TITLE_MOBILE.width}px)`;
+  positionTitleResizeHandle();
 }
 
 function initDraggableTitle(){
@@ -143,7 +159,7 @@ function initDraggableTitle(){
   applyTitlePosition();
 
   title.addEventListener("pointerdown", e=>{
-    if(!editMode || e.target === resizeHandle) return;
+    if(!editMode) return;
     e.preventDefault();
     title.classList.add("dragging");
     const onMove = ev=>{
@@ -153,6 +169,7 @@ function initDraggableTitle(){
       TITLE_MOBILE.y = y;
       title.style.left = x + "%";
       title.style.top = y + "%";
+      positionTitleResizeHandle();
     };
     const onUp = ()=>{
       title.classList.remove("dragging");
@@ -166,7 +183,7 @@ function initDraggableTitle(){
 
   // Touch-friendly resize handle — "wheel" (mouse scroll) doesn't exist
   // as a gesture on a touchscreen, which is why resizing wasn't working
-  // on mobile before. Drag this handle instead, same as characters.
+  // on mobile originally. Drag this handle instead, same as characters.
   resizeHandle.addEventListener("pointerdown", e=>{
     if(!editMode) return;
     e.preventDefault();
@@ -178,6 +195,7 @@ function initDraggableTitle(){
       const delta = (ev.clientX - startX) * 0.5;
       TITLE_MOBILE.width = Math.max(120, startWidth + delta);
       title.style.width = `calc(var(--ui-scale) * ${TITLE_MOBILE.width}px)`;
+      positionTitleResizeHandle();
       refreshLayoutOutput();
     };
     const onUp = ()=>{
@@ -188,6 +206,8 @@ function initDraggableTitle(){
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
   });
+
+  window.addEventListener("resize", positionTitleResizeHandle);
 }
 
 function applyPosition(card, pos){
