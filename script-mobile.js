@@ -29,11 +29,11 @@ const LAYOUT_MOBILE = {
   "mizore": { x: 62.3, y: 25.1, width: 257, z: 24 },
   "tsukune": { x: 41.6, y: 24.6, width: 240, z: 25 },
   "moka-inner": { x: 13.4, y: 51.3, width: 363, z: 26 },
-  "moka-outer": { x: 85.0, y: 51.1, width: 229, z: 23 },
+  "moka-outer": { x: 86.3, y: 51.0, width: 229, z: 23 },
   "winnie-pooh": { x: 81.8, y: 82.5, width: 235, z: 46 },
-  "bubu-dudu": { x: 69.9, y: 69.5, width: 284, z: 50 },
+  "bubu-dudu": { x: 65.0, y: 69.0, width: 284, z: 50 },
   "hellokitty": { x: 51.5, y: 83.3, width: 346, z: 43 },
-  "captain-ri-seri": { x: 37.7, y: 69.2, width: 281, z: 39 },
+  "captain-ri-seri": { x: 32.7, y: 68.7, width: 281, z: 39 },
   "jollibee": { x: 18.7, y: 82.8, width: 311, z: 47 },
 };
 const LAYOUT = LAYOUT_MOBILE;
@@ -44,7 +44,7 @@ const LAYOUT = LAYOUT_MOBILE;
 // directly, OR use 🖐️ edit mode — the title can now be both dragged AND
 // scroll-resized just like a character, and "Copy layout code" includes
 // its current position + size.
-const TITLE_MOBILE = { x: 53.5, y: 50.3, width: 340 };
+const TITLE_MOBILE = { x: 52.0, y: 50.5, width: 568 };
 
 // Fallback only — every character in characters-data.js has its own
 // balloonFontSizeMobile now, this is just a safety net if one is missing.
